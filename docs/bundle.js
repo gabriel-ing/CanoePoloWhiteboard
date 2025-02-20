@@ -272,7 +272,7 @@
     querySelectorAll: function(selector) { return this._parent.querySelectorAll(selector); }
   };
 
-  function constant$2(x) {
+  function constant$3(x) {
     return function() {
       return x;
     };
@@ -359,7 +359,7 @@
         parents = this._parents,
         groups = this._groups;
 
-    if (typeof value !== "function") value = constant$2(value);
+    if (typeof value !== "function") value = constant$3(value);
 
     for (var m = groups.length, update = new Array(m), enter = new Array(m), exit = new Array(m), j = 0; j < m; ++j) {
       var parent = parents[j],
@@ -1073,7 +1073,7 @@
     }
   }
 
-  var constant$1 = x => () => x;
+  var constant$2 = x => () => x;
 
   function DragEvent(type, {
     sourceEvent,
@@ -1265,19 +1265,19 @@
     }
 
     drag.filter = function(_) {
-      return arguments.length ? (filter = typeof _ === "function" ? _ : constant$1(!!_), drag) : filter;
+      return arguments.length ? (filter = typeof _ === "function" ? _ : constant$2(!!_), drag) : filter;
     };
 
     drag.container = function(_) {
-      return arguments.length ? (container = typeof _ === "function" ? _ : constant$1(_), drag) : container;
+      return arguments.length ? (container = typeof _ === "function" ? _ : constant$2(_), drag) : container;
     };
 
     drag.subject = function(_) {
-      return arguments.length ? (subject = typeof _ === "function" ? _ : constant$1(_), drag) : subject;
+      return arguments.length ? (subject = typeof _ === "function" ? _ : constant$2(_), drag) : subject;
     };
 
     drag.touchable = function(_) {
-      return arguments.length ? (touchable = typeof _ === "function" ? _ : constant$1(!!_), drag) : touchable;
+      return arguments.length ? (touchable = typeof _ === "function" ? _ : constant$2(!!_), drag) : touchable;
     };
 
     drag.on = function() {
@@ -1698,7 +1698,7 @@
         : m1) * 255;
   }
 
-  var constant = x => () => x;
+  var constant$1 = x => () => x;
 
   function linear(a, d) {
     return function(t) {
@@ -1714,13 +1714,13 @@
 
   function gamma(y) {
     return (y = +y) === 1 ? nogamma : function(a, b) {
-      return b - a ? exponential(a, b, y) : constant(isNaN(a) ? b : a);
+      return b - a ? exponential(a, b, y) : constant$1(isNaN(a) ? b : a);
     };
   }
 
   function nogamma(a, b) {
     var d = b - a;
-    return d ? linear(a, d) : constant(isNaN(a) ? b : a);
+    return d ? linear(a, d) : constant$1(isNaN(a) ? b : a);
   }
 
   var interpolateRgb = (function rgbGamma(y) {
@@ -2907,6 +2907,236 @@
   selection.prototype.interrupt = selection_interrupt;
   selection.prototype.transition = selection_transition;
 
+  const pi$1 = Math.PI,
+      tau$1 = 2 * pi$1,
+      epsilon = 1e-6,
+      tauEpsilon = tau$1 - epsilon;
+
+  function append(strings) {
+    this._ += strings[0];
+    for (let i = 1, n = strings.length; i < n; ++i) {
+      this._ += arguments[i] + strings[i];
+    }
+  }
+
+  function appendRound(digits) {
+    let d = Math.floor(digits);
+    if (!(d >= 0)) throw new Error(`invalid digits: ${digits}`);
+    if (d > 15) return append;
+    const k = 10 ** d;
+    return function(strings) {
+      this._ += strings[0];
+      for (let i = 1, n = strings.length; i < n; ++i) {
+        this._ += Math.round(arguments[i] * k) / k + strings[i];
+      }
+    };
+  }
+
+  class Path {
+    constructor(digits) {
+      this._x0 = this._y0 = // start of current subpath
+      this._x1 = this._y1 = null; // end of current subpath
+      this._ = "";
+      this._append = digits == null ? append : appendRound(digits);
+    }
+    moveTo(x, y) {
+      this._append`M${this._x0 = this._x1 = +x},${this._y0 = this._y1 = +y}`;
+    }
+    closePath() {
+      if (this._x1 !== null) {
+        this._x1 = this._x0, this._y1 = this._y0;
+        this._append`Z`;
+      }
+    }
+    lineTo(x, y) {
+      this._append`L${this._x1 = +x},${this._y1 = +y}`;
+    }
+    quadraticCurveTo(x1, y1, x, y) {
+      this._append`Q${+x1},${+y1},${this._x1 = +x},${this._y1 = +y}`;
+    }
+    bezierCurveTo(x1, y1, x2, y2, x, y) {
+      this._append`C${+x1},${+y1},${+x2},${+y2},${this._x1 = +x},${this._y1 = +y}`;
+    }
+    arcTo(x1, y1, x2, y2, r) {
+      x1 = +x1, y1 = +y1, x2 = +x2, y2 = +y2, r = +r;
+
+      // Is the radius negative? Error.
+      if (r < 0) throw new Error(`negative radius: ${r}`);
+
+      let x0 = this._x1,
+          y0 = this._y1,
+          x21 = x2 - x1,
+          y21 = y2 - y1,
+          x01 = x0 - x1,
+          y01 = y0 - y1,
+          l01_2 = x01 * x01 + y01 * y01;
+
+      // Is this path empty? Move to (x1,y1).
+      if (this._x1 === null) {
+        this._append`M${this._x1 = x1},${this._y1 = y1}`;
+      }
+
+      // Or, is (x1,y1) coincident with (x0,y0)? Do nothing.
+      else if (!(l01_2 > epsilon));
+
+      // Or, are (x0,y0), (x1,y1) and (x2,y2) collinear?
+      // Equivalently, is (x1,y1) coincident with (x2,y2)?
+      // Or, is the radius zero? Line to (x1,y1).
+      else if (!(Math.abs(y01 * x21 - y21 * x01) > epsilon) || !r) {
+        this._append`L${this._x1 = x1},${this._y1 = y1}`;
+      }
+
+      // Otherwise, draw an arc!
+      else {
+        let x20 = x2 - x0,
+            y20 = y2 - y0,
+            l21_2 = x21 * x21 + y21 * y21,
+            l20_2 = x20 * x20 + y20 * y20,
+            l21 = Math.sqrt(l21_2),
+            l01 = Math.sqrt(l01_2),
+            l = r * Math.tan((pi$1 - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),
+            t01 = l / l01,
+            t21 = l / l21;
+
+        // If the start tangent is not coincident with (x0,y0), line to.
+        if (Math.abs(t01 - 1) > epsilon) {
+          this._append`L${x1 + t01 * x01},${y1 + t01 * y01}`;
+        }
+
+        this._append`A${r},${r},0,0,${+(y01 * x20 > x01 * y20)},${this._x1 = x1 + t21 * x21},${this._y1 = y1 + t21 * y21}`;
+      }
+    }
+    arc(x, y, r, a0, a1, ccw) {
+      x = +x, y = +y, r = +r, ccw = !!ccw;
+
+      // Is the radius negative? Error.
+      if (r < 0) throw new Error(`negative radius: ${r}`);
+
+      let dx = r * Math.cos(a0),
+          dy = r * Math.sin(a0),
+          x0 = x + dx,
+          y0 = y + dy,
+          cw = 1 ^ ccw,
+          da = ccw ? a0 - a1 : a1 - a0;
+
+      // Is this path empty? Move to (x0,y0).
+      if (this._x1 === null) {
+        this._append`M${x0},${y0}`;
+      }
+
+      // Or, is (x0,y0) not coincident with the previous point? Line to (x0,y0).
+      else if (Math.abs(this._x1 - x0) > epsilon || Math.abs(this._y1 - y0) > epsilon) {
+        this._append`L${x0},${y0}`;
+      }
+
+      // Is this arc empty? We’re done.
+      if (!r) return;
+
+      // Does the angle go the wrong way? Flip the direction.
+      if (da < 0) da = da % tau$1 + tau$1;
+
+      // Is this a complete circle? Draw two arcs to complete the circle.
+      if (da > tauEpsilon) {
+        this._append`A${r},${r},0,1,${cw},${x - dx},${y - dy}A${r},${r},0,1,${cw},${this._x1 = x0},${this._y1 = y0}`;
+      }
+
+      // Is this arc non-empty? Draw an arc!
+      else if (da > epsilon) {
+        this._append`A${r},${r},0,${+(da >= pi$1)},${cw},${this._x1 = x + r * Math.cos(a1)},${this._y1 = y + r * Math.sin(a1)}`;
+      }
+    }
+    rect(x, y, w, h) {
+      this._append`M${this._x0 = this._x1 = +x},${this._y0 = this._y1 = +y}h${w = +w}v${+h}h${-w}Z`;
+    }
+    toString() {
+      return this._;
+    }
+  }
+
+  function constant(x) {
+    return function constant() {
+      return x;
+    };
+  }
+
+  const sqrt = Math.sqrt;
+  const pi = Math.PI;
+  const tau = 2 * pi;
+
+  function withPath(shape) {
+    let digits = 3;
+
+    shape.digits = function(_) {
+      if (!arguments.length) return digits;
+      if (_ == null) {
+        digits = null;
+      } else {
+        const d = Math.floor(_);
+        if (!(d >= 0)) throw new RangeError(`invalid digits: ${_}`);
+        digits = d;
+      }
+      return shape;
+    };
+
+    return () => new Path(digits);
+  }
+
+  var circle = {
+    draw(context, size) {
+      const r = sqrt(size / pi);
+      context.moveTo(r, 0);
+      context.arc(0, 0, r, 0, tau);
+    }
+  };
+
+  var cross = {
+    draw(context, size) {
+      const r = sqrt(size / 5) / 2;
+      context.moveTo(-3 * r, -r);
+      context.lineTo(-r, -r);
+      context.lineTo(-r, -3 * r);
+      context.lineTo(r, -3 * r);
+      context.lineTo(r, -r);
+      context.lineTo(3 * r, -r);
+      context.lineTo(3 * r, r);
+      context.lineTo(r, r);
+      context.lineTo(r, 3 * r);
+      context.lineTo(-r, 3 * r);
+      context.lineTo(-r, r);
+      context.lineTo(-3 * r, r);
+      context.closePath();
+    }
+  };
+
+  function Symbol$1(type, size) {
+    let context = null,
+        path = withPath(symbol);
+
+    type = typeof type === "function" ? type : constant(type || circle);
+    size = typeof size === "function" ? size : constant(size === undefined ? 64 : +size);
+
+    function symbol() {
+      let buffer;
+      if (!context) context = buffer = path();
+      type.apply(this, arguments).draw(context, +size.apply(this, arguments));
+      if (buffer) return context = null, buffer + "" || null;
+    }
+
+    symbol.type = function(_) {
+      return arguments.length ? (type = typeof _ === "function" ? _ : constant(_), symbol) : type;
+    };
+
+    symbol.size = function(_) {
+      return arguments.length ? (size = typeof _ === "function" ? _ : constant(+_), symbol) : size;
+    };
+
+    symbol.context = function(_) {
+      return arguments.length ? (context = _ == null ? null : _, symbol) : context;
+    };
+
+    return symbol;
+  }
+
   function Transform(k, x, y) {
     this.k = k;
     this.x = x;
@@ -3030,13 +3260,151 @@
     return pathD;
   };
 
-  window.mobile = checkMobile();
+  function serialize(svg) {
+    const xmlns = "http://www.w3.org/2000/xmlns/";
+    const xlinkns = "http://www.w3.org/1999/xlink";
+    const svgns = "http://www.w3.org/2000/svg";
+    svg = svg.cloneNode(true);
+    const fragment = window.location.href + "#";
+    const walker = document.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT);
+    while (walker.nextNode()) {
+      for (const attr of walker.currentNode.attributes) {
+        if (attr.value.includes(fragment)) {
+          attr.value = attr.value.replace(fragment, "#");
+        }
+      }
+    }
+    svg.setAttributeNS(xmlns, "xmlns", svgns);
+    svg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns);
+    const serializer = new window.XMLSerializer();
+    const string = serializer.serializeToString(svg);
+    return new Blob([string], {
+      type: "image/svg+xml",
+    });
+  }
 
+  function getRequiredStyles(elem) {
+    if (!elem) return []; // Element does not exist, empty list.
+    const requiredStyles = [
+      "font-family",
+      "font-weight",
+      "font-size",
+      "transform-origin",
+      "dy",
+      "text-align",
+      "dominant-baseline",
+      "text-anchor",
+    ]; // If the text styling is wrong, its possible a required styling is missing from here! Add it in.
+    // console.log(elem);
+    var win = document.defaultView || window,
+      style,
+      styleNode = [];
+    if (win.getComputedStyle) {
+      /* Modern browsers */
+      style = win.getComputedStyle(elem, "");
+      //console.log(style);
+      for (var i = 0; i < requiredStyles.length; i++) {
+        //console.log(requiredStyles[i]);
+        styleNode.push(
+          requiredStyles[i] + ":" + style.getPropertyValue(requiredStyles[i])
+        );
+        //               ^name ^           ^ value ^
+      }
+    } else if (elem.currentStyle) {
+      /* IE */
+      style = elem.currentStyle;
+      console.log(style);
+      for (var name in style) {
+        styleNode.push(name + ":" + style[name]);
+      }
+    } else {
+      /* Ancient browser..*/
+      style = elem.style;
+      console.log(style);
+      for (var i = 0; i < style.length; i++) {
+        styleNode.push(style[i] + ":" + style[style[i]]);
+      }
+    }
+    return styleNode;
+  }
+
+  const addStyles = (chart) => {
+    /* Function to add the styles from the CSS onto the computed SVG before saving it.
+  // Currently only implemented to fix the font-size and font-family attributes for any text class. 
+  // If these values are set within the d3 (i.e. directly onto the SVG), this is unnecessary
+  // But it ensures that text styling using CSS is retained. */
+
+    const textElements = chart.getElementsByTagName("text");
+    // console.log(textElements);
+
+    const mainStyles = getRequiredStyles(chart);
+    // console.log(mainStyles);
+    chart.style.cssText = mainStyles.join(";");
+    Array.from(textElements).forEach(function (element) {
+      // console.log(element);
+      // console.log(element)
+      const styles = getRequiredStyles(element);
+      // console.log(styles)
+      element.style.cssText = styles.join(";");
+    });
+    return chart;
+  };
+
+  const saveChart = (chartID) => {
+    const chart = document.getElementById(chartID);
+
+    if (chart === null) {
+      alert("error! svg incorrectly selected!");
+      return -1;
+    }
+
+    const chartWithStyles = addStyles(chart);
+    const chartBlob = serialize(chartWithStyles);
+    const fileURL = URL.createObjectURL(chartBlob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = fileURL;
+    downloadLink.download = `${chartID}.svg`;
+    document.body.appendChild(downloadLink);
+
+    downloadLink.click();
+  };
+
+  window.mobile = checkMobile();
+  window.saveChart = saveChart;
   const div = select("#chart");
   document.getElementById("chart").style.width = `${window.innerWidth * 0.99}px`;
   document.getElementById("chart").style.height = `${
-  window.innerHeight * 0.99
+  window.innerHeight * 0.99 - 50
 }px`;
+
+  window.displayFullScreen = (id) => {
+    var elem = document.getElementById(id);
+
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.webkitRequestFullscreen) {
+      /* Safari */
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+      /* IE11 */
+      elem.msRequestFullscreen();
+    }
+
+    const chart = select("#whiteboard-svg");
+    const playingArea = select("#playingArea rect");
+    chart
+      .append("path")
+      .attr("d", Symbol$1(cross).size(playingArea.attr("width") / 8))
+      .attr(
+        "transform",
+        `translate(${playingArea.attr("width") - 20},30) rotate(45)`
+      ).attr("stroke", "black").attr("stroke-width", 1).attr("fill", "rgba(0,0,0,0.2)")
+
+      .on("click", function (event) {
+        document.exitFullscreen();
+        this.remove();
+      });
+  };
 
   console.log(screen.height);
   const svg = div
@@ -3050,7 +3418,10 @@
   const height = svg.node().getBoundingClientRect().height;
   svg.attr("viewBox", `0 0 ${width} ${height}`);
 
-  const playingArea = svg.append("g").attr("transform", `translate(15, 2)`);
+  const playingArea = svg
+    .append("g")
+    .attr("transform", `translate(15, 2)`)
+    .attr("id", "playingArea");
 
   playingArea
     .append("rect")
@@ -3080,17 +3451,41 @@
   let rotation = drag$1().on("drag", handleRotation);
 
   const boatData = [
-    { x: width/9, y: height / 2, r0: 90, color: "#e6ceb2", id: 1 },
-    { x: width*2/9, y: height / 3, r0: 90, color: "#e6ceb2", id: 2 },
-    { x: width*2/9, y: (height * 2) / 3, r0: 90, color: "#e6ceb2", id: 3 },
-    { x: width*3/9, y: height / 6, r0: 90, color: "#e6ceb2", id: 4 },
-    { x: width*3/9, y: (height * 5) / 6, r0: 90, color: "#e6ceb2", id: 5 },
+    { x: width / 9, y: height / 2, r0: 90, color: "#e6ceb2", id: 1 },
+    { x: (width * 2) / 9, y: height / 3, r0: 90, color: "#e6ceb2", id: 2 },
+    { x: (width * 2) / 9, y: (height * 2) / 3, r0: 90, color: "#e6ceb2", id: 3 },
+    { x: (width * 3) / 9, y: height / 6, r0: 90, color: "#e6ceb2", id: 4 },
+    { x: (width * 3) / 9, y: (height * 5) / 6, r0: 90, color: "#e6ceb2", id: 5 },
 
-    { x: width - width/9, y: height / 2, r0: -90, color: "#b2e6ce", id: 1 },
-    { x: width - width*2/9, y: height / 3, r0: -90, color: "#b2e6ce", id: 2 },
-    { x: width - width*2/9, y: (height * 2) / 3, r0: -90, color: "#b2e6ce", id: 3 },
-    { x: width - width*3/9, y: height / 6, r0: -90, color: "#b2e6ce", id: 4 },
-    { x: width - width*3/9, y: (height * 5) / 6, r0: -90, color: "#b2e6ce", id: 5 },
+    { x: width - width / 9, y: height / 2, r0: -90, color: "#b2e6ce", id: 1 },
+    {
+      x: width - (width * 2) / 9,
+      y: height / 3,
+      r0: -90,
+      color: "#b2e6ce",
+      id: 2,
+    },
+    {
+      x: width - (width * 2) / 9,
+      y: (height * 2) / 3,
+      r0: -90,
+      color: "#b2e6ce",
+      id: 3,
+    },
+    {
+      x: width - (width * 3) / 9,
+      y: height / 6,
+      r0: -90,
+      color: "#b2e6ce",
+      id: 4,
+    },
+    {
+      x: width - (width * 3) / 9,
+      y: (height * 5) / 6,
+      r0: -90,
+      color: "#b2e6ce",
+      id: 5,
+    },
   ];
   const nodes = svg
     .selectAll(".node")
@@ -3099,8 +3494,8 @@
     .attr("class", "node")
     .attr("transform", (d) => `translate(${d.x},${d.y}) rotate(${d.r0})`);
 
-  const boatWidth = width/40;
-  const boatHeight = width/12;
+  const boatWidth = width / 40;
+  const boatHeight = width / 12;
   const boats = nodes
     .selectAll(".boat")
     .data((nodeData) => [nodeData])
@@ -3137,10 +3532,18 @@
     .attr("font-size", boatWidth * 0.8)
     .text((d) => d.id);
 
+  nodes
+    .selectAll(".arrow")
+    .append("line")
+    .attr("x1", 0)
+    .attr("y1", -boatWidth / 2)
+    .attr("x2", 0)
+    .attr("y2", -boatHeight / 3);
+
   if (mobile) {
     // ids.on('touchmove', drag);
-    ids.on('touchmove', handleDrag);
-    cockpits.on('touchmove', handleDrag);
+    ids.on("touchmove", handleDrag);
+    cockpits.on("touchmove", handleDrag);
     boats.on("touchmove", handleDrag);
     rotationHandles.on("touchmove", handleRotation);
   } else {

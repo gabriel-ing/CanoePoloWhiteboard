@@ -22,9 +22,14 @@
 
       }
       #header{
-        width:90%;
+        width:100%;
         background-color: #336299;
         height:50px;
+        display:flex;
+        justify-content: center;
+      }
+      button{
+        margin : auto;
       }
       #chart{
         margin:10px auto;
@@ -38,6 +43,7 @@
       .flex-container{
         display: flex;
       }
+
     </style>
   </head>
   <body>
@@ -45,6 +51,7 @@
      <div class="flex-container">
     <div id="chart"></div>
 </div>
+<div id="header"><button onclick="displayFullScreen('chart')">Display Full Screen</button><button onclick="saveChart('whiteboard-svg')">Save Image</button></div>
     <script src="bundle.js"></script>
 
   </body>

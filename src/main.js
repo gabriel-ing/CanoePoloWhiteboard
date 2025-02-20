@@ -1,15 +1,45 @@
 import * as d3 from "d3";
-import { checkMobile } from "./checkMobile";
-import { handleDrag, handleRotation } from "./handleDrag";
-import { generateBoatPath } from "./generateBoatPath";
+import { checkMobile } from "./utils/checkMobile";
+import { handleDrag, handleRotation } from "./utils/handleDrag";
+import { generateBoatPath } from "./utils/generateBoatPath";
+import saveChart from "./utils/saveChart";
 
 window.mobile = checkMobile();
-
+window.saveChart = saveChart;
 const div = d3.select("#chart");
 document.getElementById("chart").style.width = `${window.innerWidth * 0.99}px`;
 document.getElementById("chart").style.height = `${
-  window.innerHeight * 0.99
+  window.innerHeight * 0.99 - 50
 }px`;
+
+window.displayFullScreen = (id) => {
+  var elem = document.getElementById(id);
+
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) {
+    /* Safari */
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) {
+    /* IE11 */
+    elem.msRequestFullscreen();
+  }
+
+  const chart = d3.select("#whiteboard-svg");
+  const playingArea = d3.select("#playingArea rect");
+  chart
+    .append("path")
+    .attr("d", d3.symbol(d3.symbolCross).size(playingArea.attr("width") / 8))
+    .attr(
+      "transform",
+      `translate(${playingArea.attr("width") - 20},30) rotate(45)`
+    ).attr("stroke", "black").attr("stroke-width", 1).attr("fill", "rgba(0,0,0,0.2)")
+
+    .on("click", function (event) {
+      document.exitFullscreen();
+      this.remove();
+    });
+};
 
 console.log(screen.height);
 const svg = div
@@ -23,7 +53,10 @@ const width = svg.node().getBoundingClientRect().width;
 const height = svg.node().getBoundingClientRect().height;
 svg.attr("viewBox", `0 0 ${width} ${height}`);
 
-const playingArea = svg.append("g").attr("transform", `translate(15, 2)`);
+const playingArea = svg
+  .append("g")
+  .attr("transform", `translate(15, 2)`)
+  .attr("id", "playingArea");
 
 playingArea
   .append("rect")
@@ -53,17 +86,41 @@ let drag = d3.drag().on("drag", handleDrag);
 let rotation = d3.drag().on("drag", handleRotation);
 
 const boatData = [
-  { x: width/9, y: height / 2, r0: 90, color: "#e6ceb2", id: 1 },
-  { x: width*2/9, y: height / 3, r0: 90, color: "#e6ceb2", id: 2 },
-  { x: width*2/9, y: (height * 2) / 3, r0: 90, color: "#e6ceb2", id: 3 },
-  { x: width*3/9, y: height / 6, r0: 90, color: "#e6ceb2", id: 4 },
-  { x: width*3/9, y: (height * 5) / 6, r0: 90, color: "#e6ceb2", id: 5 },
+  { x: width / 9, y: height / 2, r0: 90, color: "#e6ceb2", id: 1 },
+  { x: (width * 2) / 9, y: height / 3, r0: 90, color: "#e6ceb2", id: 2 },
+  { x: (width * 2) / 9, y: (height * 2) / 3, r0: 90, color: "#e6ceb2", id: 3 },
+  { x: (width * 3) / 9, y: height / 6, r0: 90, color: "#e6ceb2", id: 4 },
+  { x: (width * 3) / 9, y: (height * 5) / 6, r0: 90, color: "#e6ceb2", id: 5 },
 
-  { x: width - width/9, y: height / 2, r0: -90, color: "#b2e6ce", id: 1 },
-  { x: width - width*2/9, y: height / 3, r0: -90, color: "#b2e6ce", id: 2 },
-  { x: width - width*2/9, y: (height * 2) / 3, r0: -90, color: "#b2e6ce", id: 3 },
-  { x: width - width*3/9, y: height / 6, r0: -90, color: "#b2e6ce", id: 4 },
-  { x: width - width*3/9, y: (height * 5) / 6, r0: -90, color: "#b2e6ce", id: 5 },
+  { x: width - width / 9, y: height / 2, r0: -90, color: "#b2e6ce", id: 1 },
+  {
+    x: width - (width * 2) / 9,
+    y: height / 3,
+    r0: -90,
+    color: "#b2e6ce",
+    id: 2,
+  },
+  {
+    x: width - (width * 2) / 9,
+    y: (height * 2) / 3,
+    r0: -90,
+    color: "#b2e6ce",
+    id: 3,
+  },
+  {
+    x: width - (width * 3) / 9,
+    y: height / 6,
+    r0: -90,
+    color: "#b2e6ce",
+    id: 4,
+  },
+  {
+    x: width - (width * 3) / 9,
+    y: (height * 5) / 6,
+    r0: -90,
+    color: "#b2e6ce",
+    id: 5,
+  },
 ];
 const nodes = svg
   .selectAll(".node")
@@ -72,8 +129,8 @@ const nodes = svg
   .attr("class", "node")
   .attr("transform", (d) => `translate(${d.x},${d.y}) rotate(${d.r0})`);
 
-const boatWidth = width/40;
-const boatHeight = width/12;
+const boatWidth = width / 40;
+const boatHeight = width / 12;
 const boats = nodes
   .selectAll(".boat")
   .data((nodeData) => [nodeData])
@@ -110,10 +167,18 @@ const ids = nodes
   .attr("font-size", boatWidth * 0.8)
   .text((d) => d.id);
 
+const arrows = nodes
+  .selectAll(".arrow")
+  .append("line")
+  .attr("x1", 0)
+  .attr("y1", -boatWidth / 2)
+  .attr("x2", 0)
+  .attr("y2", -boatHeight / 3);
+
 if (mobile) {
   // ids.on('touchmove', drag);
-  ids.on('touchmove', handleDrag);
-  cockpits.on('touchmove', handleDrag);
+  ids.on("touchmove", handleDrag);
+  cockpits.on("touchmove", handleDrag);
   boats.on("touchmove", handleDrag);
   rotationHandles.on("touchmove", handleRotation);
 } else {
