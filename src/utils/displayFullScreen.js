@@ -26,10 +26,24 @@ export const displayFullScreen = async (id) => {
     .attr("stroke", "black")
     .attr("stroke-width", 1)
     .attr("fill", "rgba(0,0,0,0.2)")
+    .attr("id", "exit-button")
 
     .on("click", function (event) {
       document.exitFullscreen();
       this.remove();
+      d3.select("#save-button").remove()
+    });
+
+  svg
+    .append("text")
+    .attr("id", "save-button")
+    .attr("font-family", "FontAwesome")
+    .attr("font-size", 20)
+
+    .text("\uf019")
+    .attr("transform", `translate(${pitch.attr("width") - 55},36)`)
+    .on("click", (event) => {
+      saveChart("whiteboard-svg");
     });
 };
 
@@ -44,7 +58,10 @@ export const resetScreen = (id, resetBoats) => {
     window.innerHeight * 0.99 - 50
   }px`;
 
-  console.log(svg.node().getBoundingClientRect().width, svg.node().getBoundingClientRect().height)
+  console.log(
+    svg.node().getBoundingClientRect().width,
+    svg.node().getBoundingClientRect().height
+  );
   let boatState;
   if (resetBoats) {
     boatState = getInitialBoatState(

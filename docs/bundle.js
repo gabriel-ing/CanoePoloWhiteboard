@@ -1,6 +1,27 @@
 (function () {
   'use strict';
 
+  function min(values, valueof) {
+    let min;
+    if (valueof === undefined) {
+      for (const value of values) {
+        if (value != null
+            && (min > value || (min === undefined && value >= value))) {
+          min = value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null
+            && (min > value || (min === undefined && value >= value))) {
+          min = value;
+        }
+      }
+    }
+    return min;
+  }
+
   var noop = {value: () => {}};
 
   function dispatch() {
@@ -3062,7 +3083,7 @@
     return chart;
   };
 
-  const saveChart = (chartID) => {
+  const saveChart$1 = (chartID) => {
     const chart = document.getElementById(chartID);
 
     if (chart === null) {
@@ -3071,7 +3092,14 @@
     }
 
     const chartWithStyles = addStyles(chart);
-    const chartBlob = serialize(chartWithStyles);
+    // const chartCopy = chartWithStyles
+    const chartCopy = chartWithStyles.cloneNode(true);
+    chartCopy.getElementById("save-button").remove();
+    chartCopy.getElementById("exit-button").remove();
+    Array.from(chartCopy.getElementsByClassName("rotation-handles")).forEach(
+      (item) => item.remove()
+    );
+    const chartBlob = serialize(chartCopy);
     const fileURL = URL.createObjectURL(chartBlob);
     const downloadLink = document.createElement("a");
     downloadLink.href = fileURL;
@@ -3193,6 +3221,7 @@
 
   const canoePoloWhiteboard = () => {
     let boatState;
+    let transitionDuration=1000;
 
     const my = (svg) => {
       //   console.log(screen.height);
@@ -3200,6 +3229,7 @@
       const width = svg.node().getBoundingClientRect().width;
       const height = svg.node().getBoundingClientRect().height;
       console.log(width, height);
+      const smallAxis = min([width, height]);
       svg.attr("viewBox", `0 0 ${width} ${height}`);
 
       if (!boatState) {
@@ -3210,15 +3240,15 @@
         .selectAll(".playingArea")
         .data([{width: width, height: height}])
         .join("g")
-        .attr("transform", `translate(15, 2)`)
+        .attr("transform", d=>`translate(${d.width*0.01}, ${d.height*0.01})`)
         .attr("class", "playingArea");
 
       playingArea
         .selectAll("#pitch")
         .data(playingAreaData => [playingAreaData])
         .join("rect")
-        .attr("width", width - 30)
-        .attr("height", height - 30)
+        .attr("width", d => d.width*0.98)
+        .attr("height",d=>d.height*0.98)
         .attr("x", 0)
         .attr("y", 0)
         .attr("id", "pitch")
@@ -3226,12 +3256,12 @@
         .attr("stroke-width", 2)
         .attr("fill", "#ecf2f9");
 
-      const goalHeight = 50;
-      const goalWidth = 10;
+      const goalHeight = height/10;
+      const goalWidth = width*0.005;
 
       playingArea
         .selectAll(".goals")
-        .data([0 - goalWidth, width - 30])
+        .data([0 - goalWidth, width *0.98])
         .join("rect")
         .attr("x", (d) => d)
         .attr("class", "goals")
@@ -3255,8 +3285,8 @@
                 (d) => `translate(${d.x},${d.y}) rotate(${d.r0})`
               );
 
-            const boatWidth = width / 35;
-            const boatHeight = width / 11;
+            const boatWidth = smallAxis / 20;
+            const boatHeight = smallAxis / 7;
             const boats = g
               .selectAll(".boat")
               .data((nodeData) => [nodeData])
@@ -3274,6 +3304,7 @@
               .attr("r", boatWidth / 8)
               .attr("fill", "#0d1926")
               .attr("stroke", "#0d1926")
+              .attr("class", "rotation-handles")
               .attr("stroke-width", 5);
 
             const cockpits = g
@@ -3308,7 +3339,7 @@
             }
           },
           (update) =>
-            update.attr(
+            update.transition().duration(transitionDuration).attr(
               "transform",
               (d) => d.r? `translate(${d.x},${d.y}) rotate(${d.r})`: `translate(${d.x},${d.y}) rotate(${d.r0})`
             )
@@ -3353,10 +3384,24 @@
       .attr("stroke", "black")
       .attr("stroke-width", 1)
       .attr("fill", "rgba(0,0,0,0.2)")
+      .attr("id", "exit-button")
 
       .on("click", function (event) {
         document.exitFullscreen();
         this.remove();
+        d3.select("#save-button").remove();
+      });
+
+    svg
+      .append("text")
+      .attr("id", "save-button")
+      .attr("font-family", "FontAwesome")
+      .attr("font-size", 20)
+
+      .text("\uf019")
+      .attr("transform", `translate(${pitch.attr("width") - 55},36)`)
+      .on("click", (event) => {
+        saveChart("whiteboard-svg");
       });
   };
 
@@ -3371,7 +3416,10 @@
     window.innerHeight * 0.99 - 50
   }px`;
 
-    console.log(svg.node().getBoundingClientRect().width, svg.node().getBoundingClientRect().height);
+    console.log(
+      svg.node().getBoundingClientRect().width,
+      svg.node().getBoundingClientRect().height
+    );
     let boatState;
     if (resetBoats) {
       boatState = getInitialBoatState(
@@ -3391,7 +3439,7 @@
 
   window.resetScreen = resetScreen;
   window.mobile = checkMobile();
-  window.saveChart = saveChart;
+  window.saveChart = saveChart$1;
 
   const div = select("#chart");
   document.getElementById("chart").style.width = `${window.innerWidth * 0.99}px`;

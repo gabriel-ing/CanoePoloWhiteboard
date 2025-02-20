@@ -129,7 +129,14 @@ const saveChart = (chartID) => {
   }
 
   const chartWithStyles = addStyles(chart);
-  const chartBlob = serialize(chartWithStyles);
+  // const chartCopy = chartWithStyles
+  const chartCopy = chartWithStyles.cloneNode(true);
+  chartCopy.getElementById("save-button").remove();
+  chartCopy.getElementById("exit-button").remove();
+  Array.from(chartCopy.getElementsByClassName("rotation-handles")).forEach(
+    (item) => item.remove()
+  );
+  const chartBlob = serialize(chartCopy);
   const fileURL = URL.createObjectURL(chartBlob);
   const downloadLink = document.createElement("a");
   downloadLink.href = fileURL;
