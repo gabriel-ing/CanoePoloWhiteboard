@@ -2954,10 +2954,7 @@
 
   Transform.prototype;
 
-  const width = 929;
-  const height = 504;
-
-  let mobile = (function () {
+  function checkMobile() {
     let check = false;
     (function (a) {
       if (
@@ -2973,37 +2970,53 @@
       navigator.userAgent || navigator.vendor || window.opera,
     );
     return check;
-  })();
-  console.log(mobile);
-  const svg = select('#chart')
-    .append('svg')
-    .attr('width', width)
-    .attr('height', height);
+  }
 
-  const playingArea = svg
-    .append('g')
-    .attr('transform', `translate(15, 2)`);
+  function handleRotation(e) {
+    const parentNode = d3.select(this.parentNode);
+    let d = parentNode.datum();
 
-  playingArea
-    .append('rect')
-    .attr('width', 900)
-    .attr('height', 500)
-    .attr('x', 0)
-    .attr('y', 0)
+    let dx, dy;
+    if (window.mobile) {
+      const touch = e.touches[0];
+      dx = touch.pageX - d.x;
+      dy = touch.pageY - d.y;
+    } else {
+      dx = e.sourceEvent.pageX - d.x;
+      dy = e.sourceEvent.pageY - d.y;
+    }
 
-    .attr('stroke', '#cc6695')
-    .attr('stroke-width', 2)
-    .attr('fill', '#ecf2f9');
-  const goalHeight = 50;
-  const goalWidth = 10;
-  playingArea
-    .selectAll('.goals')
-    .data([0 - goalWidth, 900])
-    .join('rect')
-    .attr('x', (d) => d)
-    .attr('y', 250 - goalHeight / 2)
-    .attr('width', goalWidth)
-    .attr('height', goalHeight);
+    let newAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+    d.r = d.r0  + newAngle;
+
+    parentNode.attr(
+      "transform",
+      (d) => `translate(${d.x}, ${d.y}) rotate(${d.r})`
+    );
+  }
+
+  function handleDrag(e) {
+      // console.log(e);
+      const parentNode = d3.select(this.parentNode);
+      let d = parentNode.datum(); // Get bound data
+    
+      if (!d.r) {
+        d.r = d.r0;
+      }
+      if (window.mobile) {
+        const touch = e.touches[0];
+        d.x = touch.pageX;
+        d.y = touch.pageY;
+      } else {
+        d.x = e.sourceEvent.pageX;
+        d.y = e.sourceEvent.pageY;
+      }
+    
+      parentNode.attr("transform", (d) => {
+        return `translate(${d.x}, ${d.y}) rotate(${d.r})`;
+      });
+    }
 
   const generateBoatPath = (x, y, w, h) => {
     let pathD = `M ${x - w / 2} ${y},
@@ -3016,148 +3029,122 @@
     console.log(pathD);
     return pathD;
   };
-  function handleDrag(e) {
-    // console.log(e);
-    const parentNode = select(this.parentNode);
-    let d = parentNode.datum(); // Get bound data
 
-    if (!d.r) {
-      d.r = d.r0;
-    }
-    if (mobile) {
-      const touch = e.touches[0];
-      d.x = touch.pageX;
-      d.y = touch.pageY;
-    } else {
-      d.x = e.sourceEvent.pageX;
-      d.y = e.sourceEvent.pageY;
-    }
-    // console.log(e.x, e.y);
-    // console.log(d.x, d.y);
-    // // consol
-    // console.log(e.sourceEvent.pageX, e.sourceEvent.pageX);
+  window.mobile = checkMobile();
 
-    parentNode.attr('transform', (d) => {
-      // console.log(`translate(${d.x}, ${d.y}) rotate(${d.r})`);
-      return `translate(${d.x}, ${d.y}) rotate(${d.r})`;
-    });
-  }
+  const div = select("#chart");
+  document.getElementById("chart").style.width = `${window.innerWidth * 0.99}px`;
+  document.getElementById("chart").style.height = `${
+  window.innerHeight * 0.99
+}px`;
 
-  function handleRotation(e) {
-    const parentNode = select(this.parentNode);
-    let d = parentNode.datum();
+  console.log(screen.height);
+  const svg = div
+    .append("svg")
+    .attr("id", "whiteboard-svg")
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("width", "100%")
+    .attr("height", "100%");
 
-    // Compute mouse position relative to node center
-    let dx, dy;
-    if (mobile) {
-      const touch = e.touches[0];
-      dx = touch.pageX - d.x;
-      dy = touch.pageY - d.y;
-    } else {
-      dx = e.sourceEvent.pageX - d.x;
-      dy = e.sourceEvent.pageY - d.y;
-    }
-    // Compute angle using atan2
-    let newAngle = Math.atan2(dy, dx) * (180 / Math.PI); // Convert to degrees
+  const width = svg.node().getBoundingClientRect().width;
+  const height = svg.node().getBoundingClientRect().height;
+  svg.attr("viewBox", `0 0 ${width} ${height}`);
 
-    // Smooth rotation by interpolating towards the new angle
-    d.r = d.r0 + 180 + newAngle; // Adjust the 0.1 factor for more/less smoothing
-    // console.log
-    parentNode.attr(
-      'transform',
-      (d) => `translate(${d.x}, ${d.y}) rotate(${d.r})`,
-    );
-    // simulation.alpha(1).restart();
-  }
+  const playingArea = svg.append("g").attr("transform", `translate(15, 2)`);
 
-  // function update() {
-  //   svg.select('.node').join(
-  //     (enter) => {},
-  //     (update) => {
-  //       // console.log(update.node());
-  //       update.attr('transform', (d) => {
-  //         // console.log(d);
-  //         return `translate(${d.dx}, ${d.dy})`;
-  //       });
-  //     },
-  //   );
-  // }
+  playingArea
+    .append("rect")
+    .attr("width", width - 30)
+    .attr("height", height - 30)
+    .attr("x", 0)
+    .attr("y", 0)
 
-  let drag = drag$1().on('drag', handleDrag);
-  let rotation = drag$1().on('drag', handleRotation);
+    .attr("stroke", "#cc6695")
+    .attr("stroke-width", 2)
+    .attr("fill", "#ecf2f9");
+
+  const goalHeight = 50;
+  const goalWidth = 10;
+
+  playingArea
+    .selectAll(".goals")
+    .data([0 - goalWidth, width - 30])
+    .join("rect")
+    .attr("x", (d) => d)
+    .attr("class", "goals")
+    .attr("y", height / 2 - goalHeight / 2)
+    .attr("width", goalWidth)
+    .attr("height", goalHeight);
+
+  let drag = drag$1().on("drag", handleDrag);
+  let rotation = drag$1().on("drag", handleRotation);
 
   const boatData = [
-    { x: 115, y: 250, r0: 90, color: '#e6ceb2', id: 1 },
-    { x: 215, y: 320, r0: 90, color: '#e6ceb2', id: 2 },
-    { x: 215, y: 180, r0: 90, color: '#e6ceb2', id: 3 },
-    { x: 315, y: 100, r0: 90, color: '#e6ceb2', id: 4 },
-    { x: 315, y: 400, r0: 90, color: '#e6ceb2', id: 5 },
+    { x: width/9, y: height / 2, r0: 90, color: "#e6ceb2", id: 1 },
+    { x: width*2/9, y: height / 3, r0: 90, color: "#e6ceb2", id: 2 },
+    { x: width*2/9, y: (height * 2) / 3, r0: 90, color: "#e6ceb2", id: 3 },
+    { x: width*3/9, y: height / 6, r0: 90, color: "#e6ceb2", id: 4 },
+    { x: width*3/9, y: (height * 5) / 6, r0: 90, color: "#e6ceb2", id: 5 },
 
-    { x: 815, y: 250, r0: -90, color: '#b2e6ce', id: 1 },
-    { x: 715, y: 320, r0: -90, color: '#b2e6ce', id: 2 },
-    { x: 715, y: 180, r0: -90, color: '#b2e6ce', id: 3 },
-    { x: 615, y: 100, r0: -90, color: '#b2e6ce', id: 4 },
-    { x: 615, y: 400, r0: -90, color: '#b2e6ce', id: 5 },
+    { x: width - width/9, y: height / 2, r0: -90, color: "#b2e6ce", id: 1 },
+    { x: width - width*2/9, y: height / 3, r0: -90, color: "#b2e6ce", id: 2 },
+    { x: width - width*2/9, y: (height * 2) / 3, r0: -90, color: "#b2e6ce", id: 3 },
+    { x: width - width*3/9, y: height / 6, r0: -90, color: "#b2e6ce", id: 4 },
+    { x: width - width*3/9, y: (height * 5) / 6, r0: -90, color: "#b2e6ce", id: 5 },
   ];
   const nodes = svg
-    .selectAll('.node')
+    .selectAll(".node")
     .data(boatData)
-    .join('g')
-    .attr('class', 'node')
-    .attr(
-      'transform',
-      (d) => `translate(${d.x},${d.y}) rotate(${d.r0})`,
-    );
+    .join("g")
+    .attr("class", "node")
+    .attr("transform", (d) => `translate(${d.x},${d.y}) rotate(${d.r0})`);
 
-  const boatWidth = 20;
-  const boatHeight = 60;
+  const boatWidth = width/40;
+  const boatHeight = width/12;
   const boats = nodes
-    .selectAll('.boat')
+    .selectAll(".boat")
     .data((nodeData) => [nodeData])
-    .join('path')
-    .attr('class', 'boat')
-    .attr('d', generateBoatPath(0, 0, boatWidth, boatHeight))
-    .attr('fill', (d) => d.color)
-    .attr('stroke', 'black')
-    .attr('stroke-width', boatWidth / 10);
+    .join("path")
+    .attr("class", "boat")
+    .attr("d", generateBoatPath(0, 0, boatWidth, boatHeight))
+    .attr("fill", (d) => d.color)
+    .attr("stroke", "black")
+    .attr("stroke-width", boatWidth / 10);
 
   const rotationHandles = nodes
-    .append('circle')
-    .attr('cx', 0)
-    .attr('cy', boatHeight + boatWidth / 2)
-    .attr('r', boatWidth / 8)
-    .attr('fill', '#0d1926')
-    .attr('stroke', '#0d1926')
-    .attr('stroke-width', 5);
+    .append("circle")
+    .attr("cx", 0)
+    .attr("cy", boatHeight + boatWidth / 2)
+    .attr("r", boatWidth / 8)
+    .attr("fill", "#0d1926")
+    .attr("stroke", "#0d1926")
+    .attr("stroke-width", 5);
 
   const cockpits = nodes
-    .append('circle')
-    .attr('cx', 0)
-    .attr('cy', 0)
-    .attr('r', boatWidth / 2)
-    .attr('opacity', 0.3);
+    .append("circle")
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("r", boatWidth / 2)
+    .attr("opacity", 0.3);
 
   const ids = nodes
-    .selectAll('boatID')
+    .selectAll("boatID")
     .data((nodeData) => [nodeData])
-    .join('text')
-    .attr('x', 0)
-    .attr('y', boatWidth * 0.3)
-    .attr('text-anchor', 'middle')
-    .attr('font-size', boatWidth * 0.8)
+    .join("text")
+    .attr("x", 0)
+    .attr("y", boatWidth * 0.3)
+    .attr("text-anchor", "middle")
+    .attr("font-size", boatWidth * 0.8)
     .text((d) => d.id);
 
   if (mobile) {
     // ids.on('touchmove', drag);
-    // ids.on('touchstart', drag);
-    // cockpits.call(drag);
-    boats.on('touchstart', (event) => {
-      console.log(event);
-    });
-    boats.on('touchmove', handleDrag);
-    rotationHandles.on('touchmove', handleRotation);
+    ids.on('touchmove', handleDrag);
+    cockpits.on('touchmove', handleDrag);
+    boats.on("touchmove", handleDrag);
+    rotationHandles.on("touchmove", handleRotation);
   } else {
-    console.log('false');
+    console.log("false");
     ids.call(drag);
     cockpits.call(drag);
     boats.call(drag);

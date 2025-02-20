@@ -17,12 +17,35 @@
       body {
         font-family: arial;
         overflow: hidden;
+        margin: 0;
+        height:100%
+
+      }
+      #header{
+        width:90%;
+        background-color: #336299;
+        height:50px;
+      }
+      #chart{
+        margin:10px auto;
+        width:99.5%;
+        /* height: 800px; */
+        background-color: rgb(255, 255, 255);
+        flex-grow: 1;
+        flex-shrink: 1;
+
+      }
+      .flex-container{
+        display: flex;
       }
     </style>
   </head>
   <body>
+    <!-- <div id="header"></div> -->
+     <div class="flex-container">
     <div id="chart"></div>
+</div>
     <script src="bundle.js"></script>
-    
+
   </body>
 </html>
