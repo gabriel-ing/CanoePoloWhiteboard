@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Canoe Polo Whiteboard
-    </title>
+    <title>Canoe Polo Whiteboard</title>
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
 
@@ -10,7 +9,7 @@
       .color-square {
         cursor: pointer;
       }
-      .node:active {
+      .nodes:active {
         stroke-dasharray: 2 2;
       }
 
@@ -18,41 +17,45 @@
         font-family: arial;
         overflow: hidden;
         margin: 0;
-        height:100%
-
+        height: 100%;
       }
-      #header{
-        width:100%;
+      #header {
+        width: 100%;
         background-color: #336299;
-        height:50px;
-        display:flex;
+        height: 50px;
+        display: flex;
+        position: fixed;
+        bottom:0;
         justify-content: center;
       }
-      button{
-        margin : auto;
+      button {
+        margin: auto;
       }
-      #chart{
-        margin:10px auto;
-        width:99.5%;
+      #chart {
+        margin: 10px auto;
+        width: 99.5%;
         /* height: 800px; */
         background-color: rgb(255, 255, 255);
         flex-grow: 1;
         flex-shrink: 1;
-
       }
-      .flex-container{
+      .flex-container {
         display: flex;
       }
-
     </style>
   </head>
   <body>
     <!-- <div id="header"></div> -->
-     <div class="flex-container">
-    <div id="chart"></div>
-</div>
-<div id="header"><button onclick="displayFullScreen('chart')">Display Full Screen</button><button onclick="saveChart('whiteboard-svg')">Save Image</button></div>
+    <div class="flex-container">
+      <div id="chart"></div>
+    </div>
+    <div id="header">
+      <button onclick="displayFullScreen('chart')">Display Full Screen</button
+      ><button onclick="saveChart('whiteboard-svg')">Save Image</button>
+      <button onclick="resetScreen('whiteboard-svg', false)">Reset Playing Area</button>
+      <button onclick="resetScreen('whiteboard-svg', true)">Reset Everything
+      </button>
+    </div>
     <script src="bundle.js"></script>
-
   </body>
 </html>
