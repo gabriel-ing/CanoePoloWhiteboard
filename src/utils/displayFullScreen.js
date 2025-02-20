@@ -17,7 +17,7 @@ export const displayFullScreen = async (id) => {
   const svg = d3.select("#whiteboard-svg");
   const pitch = d3.select("#pitch");
 
-  resetScreen("whiteboard-svg");
+  resetScreen("whiteboard-svg", true);
 
   svg
     .append("path")
