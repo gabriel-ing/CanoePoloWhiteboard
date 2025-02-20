@@ -2993,6 +2993,113 @@
     return check;
   }
 
+  function inlineStyles(source, target) {
+    // inline style from source element to the target (detached) one
+    const computed = window.getComputedStyle(source);
+    for (const styleKey of computed) {
+      target.style[styleKey] = computed[styleKey];
+    }
+
+    // recursively call inlineStyles for the element children
+    for (let i = 0; i < source.children.length; i++) {
+      inlineStyles(source.children[i], target.children[i]);
+    }
+  }
+
+  function copyToCanvas({ source, target, scale, format, quality }) {
+    let svgData = new XMLSerializer().serializeToString(target);
+    let canvas = document.createElement('canvas');
+    let svgSize = source.getBoundingClientRect();
+
+    //Resize can break shadows
+    canvas.width = svgSize.width * scale;
+    canvas.height = svgSize.height * scale;
+    canvas.style.width = svgSize.width;
+    canvas.style.height = svgSize.height;
+
+    let ctxt = canvas.getContext('2d');
+    ctxt.scale(scale, scale);
+
+    let img = document.createElement('img');
+
+    img.setAttribute(
+      'src',
+      'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)))
+    );
+    return new Promise(resolve => {
+      img.onload = () => {
+        ctxt.drawImage(img, 0, 0);
+        resolve(
+          canvas.toDataURL(`image/${format === 'jpg' ? 'jpeg' : format}`, quality)
+        );
+      };
+    });
+  }
+
+  function downloadImage({ file, name, format }) {
+    let a = document.createElement('a');
+    a.download = `${name}.${format}`;
+    a.href = file;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  var d3SvgToPng = async function (
+    source,
+    name,
+    {
+      scale = 1,
+      format = 'png',
+      quality = 0.92,
+      download = true,
+      ignore = null,
+      cssinline = 1,
+      background = null
+    } = {}
+  ) {
+    // Accept a selector or directly a DOM Element
+    source = source instanceof Element ? source : document.querySelector(source);
+
+    // Create a new SVG element similar to the source one to avoid modifying the
+    // source element.
+    const target = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    target.innerHTML = source.innerHTML;
+    for (const attr of source.attributes) {
+      target.setAttribute(attr.name, attr.value);
+    }
+
+    // Set all the css styles inline on the target element based on the styles
+    // of the source element
+    if (cssinline === 1) {
+      inlineStyles(source, target);
+    }
+
+    if (background) {
+      target.style.background = background;
+    }
+
+    //Remove unwanted elements
+    if (ignore != null) {
+      const elts = target.querySelectorAll(ignore);
+      [].forEach.call(elts, elt => elt.parentNode.removeChild(elt));
+    }
+
+    //Copy all html to a new canvas
+    const file = await copyToCanvas({
+      source,
+      target,
+      scale,
+      format,
+      quality
+    });
+
+    if (download) {
+      downloadImage({ file, name, format });
+    }
+    return file;
+  };
+
   function serialize(svg) {
     const xmlns = "http://www.w3.org/2000/xmlns/";
     const xlinkns = "http://www.w3.org/1999/xlink";
@@ -3083,7 +3190,7 @@
     return chart;
   };
 
-  const saveChart$1 = (chartID) => {
+  const saveChart = (chartID) => {
     const chart = document.getElementById(chartID);
 
     if (chart === null) {
@@ -3094,7 +3201,8 @@
     const chartWithStyles = addStyles(chart);
     // const chartCopy = chartWithStyles
     const chartCopy = chartWithStyles.cloneNode(true);
-    chartCopy.getElementById("save-button").remove();
+    const saveButton = chartCopy.getElementById("save-button");
+    if (saveButton) saveButton.remove();
     chartCopy.getElementById("exit-button").remove();
     Array.from(chartCopy.getElementsByClassName("rotation-handles")).forEach(
       (item) => item.remove()
@@ -3107,6 +3215,108 @@
     document.body.appendChild(downloadLink);
 
     downloadLink.click();
+  };
+
+  // export const saveChartPng = (chartID) => {
+  //   const chart = document.getElementById(chartID);
+
+  //   if (chart === null) {
+  //     alert("error! svg incorrectly selected!");
+  //     return -1;
+  //   }
+
+  //   const chartWithStyles = addStyles(chart);
+  //   // const chartCopy = chartWithStyles
+  //   const chartCopy = chartWithStyles.cloneNode(true);
+  //   const saveButton = chartCopy.getElementById("save-button");
+  //   if (saveButton) saveButton.remove();
+  //   const exitButton = chartCopy.getElementById("exit-button");
+  //   if (exitButton) saveButton.remove();
+  //   Array.from(chartCopy.getElementsByClassName("rotation-handles")).forEach(
+  //     (item) => item.remove()
+  //   );
+  //   const chartBlob = serialize(chartCopy);
+  //   const url = URL.createObjectURL(chartBlob);
+
+  // };
+
+  // export const saveChartPng = () => {
+  //   const dataHeader = 'data:image/svg+xml;charset=utf-8'
+  //   const $svg = document.getElementById('svg-container').querySelector('svg')
+  //   const $holder = document.getElementById('img-container')
+  //   const $label = document.getElementById('img-format')
+
+  //   const destroyChildren = $element => {
+  //     while ($element.firstChild) {
+  //       const $lastChild = $element.lastChild ?? false
+  //       if ($lastChild) $element.removeChild($lastChild)
+  //     }
+  //   }
+
+  //   const loadImage = async url => {
+  //     const $img = document.createElement('img')
+  //     $img.src = url
+  //     return new Promise((resolve, reject) => {
+  //       $img.onload = () => resolve($img)
+  //       $img.onerror = reject
+  //     })
+  //   }
+
+  //   const serializeAsXML = $e => (new XMLSerializer()).serializeToString($e)
+
+  //   const encodeAsUTF8 = s => `${dataHeader},${encodeURIComponent(s)}`
+  //   const encodeAsB64 = s => `${dataHeader};base64,${btoa(s)}`
+
+  //   const convertSVGtoImg = async e => {
+  //     const $btn = e.target
+  //     const format = $btn.dataset.format ?? 'png'
+  //     $label.textContent = format
+
+  //     destroyChildren($holder)
+
+  //     const svgData = encodeAsUTF8(serializeAsXML($svg))
+
+  //     const img = await loadImage(svgData)
+
+  //     const $canvas = document.createElement('canvas')
+  //     $canvas.width = $svg.clientWidth
+  //     $canvas.height = $svg.clientHeight
+  //     $canvas.getContext('2d').drawImage(img, 0, 0, $svg.clientWidth, $svg.clientHeight)
+
+  //     const dataURL = await $canvas.toDataURL(`image/${format}`, 1.0)
+  //     console.log(dataURL)
+
+  //     const $img = document.createElement('img')
+  //     $img.src = dataURL
+  //     $holder.appendChild($img)
+  //   }
+
+  //   const buttons = [...document.querySelectorAll('[data-format]')]
+  //   for (const $btn of buttons) {
+  //     $btn.onclick = convertSVGtoImg
+  //   }
+  // }
+
+  const saveChartPng = (chartID) => {
+      const chart = document.getElementById(chartID);
+
+    if (chart === null) {
+      alert("error! svg incorrectly selected!");
+      return -1;
+    }
+
+    // const chartWithStyles = addStyles(chart);
+    // const chartCopy = chartWithStyles
+    const chartCopy = chart.cloneNode(true);
+    const saveButton = chartCopy.getElementById("save-button");
+    if (saveButton) saveButton.remove();
+    const exitButton = chartCopy.getElementById("exit-button");
+    if (exitButton) saveButton.remove();
+    Array.from(chartCopy.getElementsByClassName("rotation-handles")).forEach(
+      (item) => item.remove()
+    );
+    console.log(chartCopy);
+    d3SvgToPng(chartCopy, "CanoePoloWhiteboard");
   };
 
   const getInitialBoatState = (width, height) => {
@@ -3125,6 +3335,58 @@
         x: (width * 3) / 9,
         y: (height * 5) / 6,
         r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+      },
+
+      { x: width - width / 9, y: height / 2, r0: -90, color: "#b2e6ce", id: 1 },
+      {
+        x: width - (width * 2) / 9,
+        y: height / 3,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+      },
+      {
+        x: width - (width * 2) / 9,
+        y: (height * 2) / 3,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+      },
+      {
+        x: width - (width * 3) / 9,
+        y: height / 6,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+      },
+      {
+        x: width - (width * 3) / 9,
+        y: (height * 5) / 6,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+      },
+    ];
+  };
+
+  const getDefensiveFormation = (width, height) => {
+    return [
+      { x: width / 9, y: height / 2, r0: 90, color: "#e6ceb2", id: 1 },
+      { x: (width * 2) / 9, y: height *2/ 5, r0: 135, color: "#e6ceb2", id: 2 },
+      {
+        x: (width * 2) / 9,
+        y: (height * 3) / 5,
+        r0: 45,
+        color: "#e6ceb2",
+        id: 3,
+      },
+      { x: (width * 3) / 9, y: height *3/ 10, r0: 120, color: "#e6ceb2", id: 4 },
+      {
+        x: (width * 3) / 9,
+        y: (height * 7) / 10,
+        r0: 70,
         color: "#e6ceb2",
         id: 5,
       },
@@ -3439,7 +3701,8 @@
 
   window.resetScreen = resetScreen;
   window.mobile = checkMobile();
-  window.saveChart = saveChart$1;
+  window.saveChart = saveChart;
+  window.savePng = saveChartPng;
 
   const div = select("#chart");
   document.getElementById("chart").style.width = `${window.innerWidth * 0.99}px`;
@@ -3450,12 +3713,20 @@
   window.displayFullScreen = displayFullScreen;
 
   const svg = div
-  .append("svg")
-  .attr("id", "whiteboard-svg")
-  .attr("preserveAspectRatio", "xMinYMin meet")
-  .attr("width", "100%")
-  .attr("height", "100%");
+    .append("svg")
+    .attr("id", "whiteboard-svg")
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("width", "100%")
+    .attr("height", "100%");
 
+  window.changeState = () => {
+    const state = getDefensiveFormation(
+      svg.node().getBoundingClientRect().width,
+      svg.node().getBoundingClientRect().height
+    );
+    const newState = canoePoloWhiteboard().boatState(state);
+    svg.call(newState);
+  };
   const whiteboard = canoePoloWhiteboard();
 
   svg.call(whiteboard);

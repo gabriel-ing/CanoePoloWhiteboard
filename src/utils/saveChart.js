@@ -1,3 +1,4 @@
+import d3ToPng from "d3-svg-to-png";
 function serialize(svg) {
   const xmlns = "http://www.w3.org/2000/xmlns/";
   const xlinkns = "http://www.w3.org/1999/xlink";
@@ -120,7 +121,7 @@ const addStyles = (chart) => {
   return chart;
 };
 
-const saveChart = (chartID) => {
+export const saveChart = (chartID) => {
   const chart = document.getElementById(chartID);
 
   if (chart === null) {
@@ -131,7 +132,8 @@ const saveChart = (chartID) => {
   const chartWithStyles = addStyles(chart);
   // const chartCopy = chartWithStyles
   const chartCopy = chartWithStyles.cloneNode(true);
-  chartCopy.getElementById("save-button").remove();
+  const saveButton = chartCopy.getElementById("save-button");
+  if (saveButton) saveButton.remove();
   chartCopy.getElementById("exit-button").remove();
   Array.from(chartCopy.getElementsByClassName("rotation-handles")).forEach(
     (item) => item.remove()
@@ -146,4 +148,104 @@ const saveChart = (chartID) => {
   downloadLink.click();
 };
 
-export default saveChart;
+// export const saveChartPng = (chartID) => {
+//   const chart = document.getElementById(chartID);
+
+//   if (chart === null) {
+//     alert("error! svg incorrectly selected!");
+//     return -1;
+//   }
+
+//   const chartWithStyles = addStyles(chart);
+//   // const chartCopy = chartWithStyles
+//   const chartCopy = chartWithStyles.cloneNode(true);
+//   const saveButton = chartCopy.getElementById("save-button");
+//   if (saveButton) saveButton.remove();
+//   const exitButton = chartCopy.getElementById("exit-button");
+//   if (exitButton) saveButton.remove();
+//   Array.from(chartCopy.getElementsByClassName("rotation-handles")).forEach(
+//     (item) => item.remove()
+//   );
+//   const chartBlob = serialize(chartCopy);
+//   const url = URL.createObjectURL(chartBlob);
+
+// };
+
+// export const saveChartPng = () => {
+//   const dataHeader = 'data:image/svg+xml;charset=utf-8'
+//   const $svg = document.getElementById('svg-container').querySelector('svg')
+//   const $holder = document.getElementById('img-container')
+//   const $label = document.getElementById('img-format')
+
+//   const destroyChildren = $element => {
+//     while ($element.firstChild) {
+//       const $lastChild = $element.lastChild ?? false
+//       if ($lastChild) $element.removeChild($lastChild)
+//     }
+//   }
+
+//   const loadImage = async url => {
+//     const $img = document.createElement('img')
+//     $img.src = url
+//     return new Promise((resolve, reject) => {
+//       $img.onload = () => resolve($img)
+//       $img.onerror = reject
+//     })
+//   }
+
+//   const serializeAsXML = $e => (new XMLSerializer()).serializeToString($e)
+
+//   const encodeAsUTF8 = s => `${dataHeader},${encodeURIComponent(s)}`
+//   const encodeAsB64 = s => `${dataHeader};base64,${btoa(s)}`
+
+//   const convertSVGtoImg = async e => {
+//     const $btn = e.target
+//     const format = $btn.dataset.format ?? 'png'
+//     $label.textContent = format
+
+//     destroyChildren($holder)
+
+//     const svgData = encodeAsUTF8(serializeAsXML($svg))
+
+//     const img = await loadImage(svgData)
+
+//     const $canvas = document.createElement('canvas')
+//     $canvas.width = $svg.clientWidth
+//     $canvas.height = $svg.clientHeight
+//     $canvas.getContext('2d').drawImage(img, 0, 0, $svg.clientWidth, $svg.clientHeight)
+
+//     const dataURL = await $canvas.toDataURL(`image/${format}`, 1.0)
+//     console.log(dataURL)
+
+//     const $img = document.createElement('img')
+//     $img.src = dataURL
+//     $holder.appendChild($img)
+//   }
+
+//   const buttons = [...document.querySelectorAll('[data-format]')]
+//   for (const $btn of buttons) {
+//     $btn.onclick = convertSVGtoImg
+//   }
+// }
+
+export const saveChartPng = (chartID) => {
+    const chart = document.getElementById(chartID);
+
+  if (chart === null) {
+    alert("error! svg incorrectly selected!");
+    return -1;
+  }
+
+  // const chartWithStyles = addStyles(chart);
+  // const chartCopy = chartWithStyles
+  const chartCopy = chart.cloneNode(true);
+  const saveButton = chartCopy.getElementById("save-button");
+  if (saveButton) saveButton.remove();
+  const exitButton = chartCopy.getElementById("exit-button");
+  if (exitButton) saveButton.remove();
+  Array.from(chartCopy.getElementsByClassName("rotation-handles")).forEach(
+    (item) => item.remove()
+  );
+  console.log(chartCopy)
+  d3ToPng(chartCopy, "CanoePoloWhiteboard")
+}

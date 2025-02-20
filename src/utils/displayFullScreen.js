@@ -1,6 +1,6 @@
 import { canoePoloWhiteboard } from "../canoePoloWhiteboard";
 import { getInitialBoatState } from "../initialBoatState";
-
+import {saveChart} from "./saveChart.js"
 export const displayFullScreen = async (id) => {
   var elem = document.getElementById(id);
 
