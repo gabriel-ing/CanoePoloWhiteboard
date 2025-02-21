@@ -60,7 +60,10 @@
         max-width: 80%;
         justify-content: center;
         text-align: center;
-        max-height: 10%;
+        max-height: 10vh;
+        min-height: 5vh;
+        overflow:auto;
+
       }
       #options-panel {
         border: 1px dashed black;
@@ -77,7 +80,7 @@
       }
       .animation-button {
         margin: 5px 5px;
-        flex-shrink: 1;
+        flex-shrink: 2;
         flex-grow: 1;
         /* height: 50%; */
         /* width: 10%; */
@@ -85,7 +88,9 @@
         background-color: white;
         border-radius: 5px;
         font-size: 12px;
-        padding: 2px;
+        /* padding: 2px; */
+        max-height: 40%;
+        min-height: 10%;
       }
       #button-panel {
         position: absolute;
@@ -117,11 +122,16 @@
         display: flex;
         flex-direction: column;
       }
-      #chart{
-        height:90%;
+      #chart {
+        height: 90%;
       }
-      #chart-container{
+      #chart-container {
         background-color: white;
+      }
+      .flex-column {
+        flex-direction: column;
+        display: flex;
+        flex-shrink: 1;
       }
     </style>
   </head>
@@ -149,10 +159,12 @@
         <div class="animation-panel">
           <!-- <h5 id="animation-title">Animation Control</h5> -->
           <div class="animation-options">
-            <button onclick="reanimateStates(false)" class="animation-button">
-              Play Animation
-            </button>
-            <div class="main-buttons">
+            <div class="flex-column">
+              <button onclick="reanimateStates(false)" class="animation-button">
+                Play Animation
+              </button>
+            </div>
+            <div class="main-buttons flex-column">
               <button onclick="saveState()" class="animation-button">
                 Save Position
               </button>
@@ -160,11 +172,11 @@
                 Clear Positions
               </button>
             </div>
-            <div class="speed-label">
+            <div class="speed-label flex-column">
               Position count:
               <div id="state-count">0</div>
             </div>
-            <div class="speed-label">
+            <div class="speed-label flex-column">
               <label for="duration">Animation Speed</label>
               <select id="duration" class="animation-button">
                 <option>0.25x</option>
@@ -175,11 +187,21 @@
                 <option>4x</option>
               </select>
             </div>
-            <button onclick="animationInstructions()">?</button>
-            <button onclick="loadPositions(true)" class="animation-button">
-              Load Demo
-            </button>
-            <div id="save-load-panel">
+            <div class="flex-column">
+              <button
+                onclick="animationInstructions()"
+                class="animation-button"
+              >
+                ?
+              </button>
+            </div>
+            <div class="flex-column">
+              <button onclick="loadPositions(true)" class="animation-button">
+                Load Demo
+              </button>
+            </div>
+
+            <div id="save-load-panel flex-column">
               <button onclick="savePositions()" class="animation-button">
                 Save Positions
               </button>

@@ -18,7 +18,7 @@ export const saveState = () => {
 const speedConversion = {
   "0.25x": 4,
   "0.5x": 2,
-  0.75: 1.5,
+  "0.75x": 1.5,
   "1x": 1,
   "2x": 0.5,
   "4x": 0.25,
