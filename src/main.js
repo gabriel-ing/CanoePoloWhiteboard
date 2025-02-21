@@ -4,11 +4,37 @@ import { saveChart, saveChartPng } from "./utils/saveChart.js";
 import { displayFullScreen, resetScreen } from "./utils/displayFullScreen";
 import { canoePoloWhiteboard } from "./canoePoloWhiteboard";
 import { getDefensiveFormation } from "./initialBoatState.js";
+import {
+  animationInstructions,
+  clearAnimation,
+  reanimateStates,
+  saveState,
+} from "./utils/animate.js";
 
+//Button functions:
 window.resetScreen = resetScreen;
 window.mobile = checkMobile();
 window.saveChart = saveChart;
 window.savePng = saveChartPng;
+
+// Animation functions:
+window.states = [];
+window.saveState = saveState;
+window.reanimateStates = reanimateStates;
+window.clearAnimation = clearAnimation;
+window.animationInstructions = animationInstructions;
+
+// document.getElementById("orange-boats").addEventListener("change", (event) => {
+//   const team = 1;
+//   console.log(event.target.value);
+
+//   const filtered = d3.selectAll(".nodes").filter((d) => {
+//     console.log(d);
+//     return d.id > event.target.value;
+//   }).remove(); //.remove()
+//   // const filtered= data.filter(d=> d.id<=event.target.value)
+//   console.log(filtered);
+// });
 
 const div = d3.select("#chart");
 document.getElementById("chart").style.width = `${window.innerWidth * 0.99}px`;

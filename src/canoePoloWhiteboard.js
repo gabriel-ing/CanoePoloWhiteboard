@@ -5,16 +5,21 @@ import * as d3 from "d3";
 
 export const canoePoloWhiteboard = () => {
   let boatState;
-  let transitionDuration=1000;
+  let transitionDuration = 1000;
 
   const my = (svg) => {
     //   console.log(screen.height);
 
     const width = svg.node().getBoundingClientRect().width;
     const height = svg.node().getBoundingClientRect().height;
-    console.log(width, height)
-    const smallAxis = d3.min([width, height])
+    // console.log(width, height)
+    const smallAxis = d3.min([width, height]);
     svg.attr("viewBox", `0 0 ${width} ${height}`);
+
+    const boatWidth = smallAxis / 20;
+    const boatHeight = smallAxis / 4;
+    const goalHeight = height / 10;
+    const goalWidth = width * 0.005;
 
     if (!boatState) {
       boatState = getInitialBoatState(width, height);
@@ -22,17 +27,20 @@ export const canoePoloWhiteboard = () => {
 
     const playingArea = svg
       .selectAll(".playingArea")
-      .data([{width: width, height: height}])
+      .data([{ width: width, height: height }])
       .join("g")
-      .attr("transform", d=>`translate(${d.width*0.01}, ${d.height*0.01})`)
+      .attr(
+        "transform",
+        (d) => `translate(${d.width * 0.01}, ${d.height * 0.01})`
+      )
       .attr("class", "playingArea");
 
     playingArea
       .selectAll("#pitch")
-      .data(playingAreaData => [playingAreaData])
+      .data((playingAreaData) => [playingAreaData])
       .join("rect")
-      .attr("width", d => d.width*0.98)
-      .attr("height",d=>d.height*0.98)
+      .attr("width", (d) => d.width * 0.98)
+      .attr("height", (d) => d.height * 0.98)
       .attr("x", 0)
       .attr("y", 0)
       .attr("id", "pitch")
@@ -40,12 +48,9 @@ export const canoePoloWhiteboard = () => {
       .attr("stroke-width", 2)
       .attr("fill", "#ecf2f9");
 
-    const goalHeight = height/10;
-    const goalWidth = width*0.005;
-
     const goals = playingArea
       .selectAll(".goals")
-      .data([0 - goalWidth, width *0.98])
+      .data([0 - goalWidth, width * 0.98])
       .join("rect")
       .attr("x", (d) => d)
       .attr("class", "goals")
@@ -53,6 +58,17 @@ export const canoePoloWhiteboard = () => {
       .attr("width", goalWidth)
       .attr("height", goalHeight);
 
+    const lines = playingArea
+      .selectAll(".area-lines")
+      .data([2 * boatHeight, width * 0.98 - 2 * boatHeight])
+      .join("line")
+      .attr("class", "area-lines")
+      .attr("x1", (d) => d)
+      .attr("x2", (d) => d)
+      .attr("y1", 0)
+      .attr("y2", height * 0.98)
+      .attr("stroke", "#cc6695")
+      .attr("stroke-width", 0.3);
     let drag = d3.drag().on("drag", handleDrag);
     let rotation = d3.drag().on("drag", handleRotation);
 
@@ -69,8 +85,6 @@ export const canoePoloWhiteboard = () => {
               (d) => `translate(${d.x},${d.y}) rotate(${d.r0})`
             );
 
-          const boatWidth = smallAxis / 20;
-          const boatHeight = smallAxis / 7;
           const boats = g
             .selectAll(".boat")
             .data((nodeData) => [nodeData])
@@ -84,7 +98,7 @@ export const canoePoloWhiteboard = () => {
           const rotationHandles = g
             .append("circle")
             .attr("cx", 0)
-            .attr("cy", boatHeight + boatWidth / 2)
+            .attr("cy", boatHeight / 2 + boatWidth / 2)
             .attr("r", boatWidth / 8)
             .attr("fill", "#0d1926")
             .attr("stroke", "#0d1926")
@@ -122,11 +136,18 @@ export const canoePoloWhiteboard = () => {
             rotationHandles.call(rotation);
           }
         },
-        (update) =>
-          update.transition().duration(transitionDuration).attr(
-            "transform",
-            (d) => d.r? `translate(${d.x},${d.y}) rotate(${d.r})`: `translate(${d.x},${d.y}) rotate(${d.r0})`
-          )
+        (update) => {
+          update
+            .transition()
+            .ease(d3.easeLinear)
+            .duration(transitionDuration)
+            .attr("transform", (d) =>
+              d.r
+                ? `translate(${d.x},${d.y}) rotate(${d.r})`
+                : `translate(${d.x},${d.y}) rotate(${d.r0})`
+            );
+          update.selectAll(".boat").attr("fill", (d) => d.color);
+        }
       );
 
     // const arrows = nodes
@@ -139,6 +160,9 @@ export const canoePoloWhiteboard = () => {
   };
   my.boatState = function (_) {
     return arguments.length ? ((boatState = _), my) : my;
+  };
+  my.transitionDuration = function (_) {
+    return arguments.length ? ((transitionDuration = _), my) : my;
   };
   return my;
 };

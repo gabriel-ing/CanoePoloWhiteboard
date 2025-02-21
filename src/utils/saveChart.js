@@ -247,5 +247,22 @@ export const saveChartPng = (chartID) => {
     (item) => item.remove()
   );
   console.log(chartCopy)
-  d3ToPng(chartCopy, "CanoePoloWhiteboard")
+  d3ToPng(chart, "CanoePoloWhiteboard")
+
+  function save( dataBlob, filesize ){
+		saveAs( dataBlob, 'D3 vis exported to PNG.png' ); // FileSaver.js function
+	}
+  const chartBlob = serialize(chartCopy);
+  const width = 500
+  const height = 300
+  // const pngImage = svgString2Image( chartBlob, 2*width, 2*height, 'png', save )
+  // console.log(pngImage)
+  const fileURL = URL.createObjectURL(chartBlob);
+  // const downloadLink = document.createElement("a");
+  // downloadLink.href = fileURL;
+  // downloadLink.download = `${chartID}.svg`;
+  // document.body.appendChild(downloadLink);
+
+  // downloadLink.click();
 }
+

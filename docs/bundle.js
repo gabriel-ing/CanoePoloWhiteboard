@@ -1721,7 +1721,7 @@
 
   var constant = x => () => x;
 
-  function linear(a, d) {
+  function linear$1(a, d) {
     return function(t) {
       return a + t * d;
     };
@@ -1741,7 +1741,7 @@
 
   function nogamma(a, b) {
     var d = b - a;
-    return d ? linear(a, d) : constant(isNaN(a) ? b : a);
+    return d ? linear$1(a, d) : constant(isNaN(a) ? b : a);
   }
 
   var interpolateRgb = (function rgbGamma(y) {
@@ -2883,6 +2883,8 @@
     [Symbol.iterator]: selection_prototype[Symbol.iterator]
   };
 
+  const linear = t => +t;
+
   function cubicInOut(t) {
     return ((t *= 2) <= 1 ? t * t * t : (t -= 2) * t * t + 2) / 2;
   }
@@ -3316,36 +3318,71 @@
       (item) => item.remove()
     );
     console.log(chartCopy);
-    d3SvgToPng(chartCopy, "CanoePoloWhiteboard");
+    d3SvgToPng(chart, "CanoePoloWhiteboard");
+    const chartBlob = serialize(chartCopy);
+    // const pngImage = svgString2Image( chartBlob, 2*width, 2*height, 'png', save )
+    // console.log(pngImage)
+    URL.createObjectURL(chartBlob);
+    // const downloadLink = document.createElement("a");
+    // downloadLink.href = fileURL;
+    // downloadLink.download = `${chartID}.svg`;
+    // document.body.appendChild(downloadLink);
+
+    // downloadLink.click();
   };
 
-  const getInitialBoatState = (width, height) => {
-    return [
-      { x: width / 9, y: height / 2, r0: 90, color: "#e6ceb2", id: 1 },
-      { x: (width * 2) / 9, y: height / 3, r0: 90, color: "#e6ceb2", id: 2 },
+  const getInitialBoatState = (width, height, nTeam1 = 5, nTeam2 = 5) => {
+    const team1Pos = [
+      { x: width / 9, y: height / 2, r0: 90, color: "#e6ceb2", id: 1, team: 1 },
+      {
+        x: (width * 2) / 9,
+        y: height / 3,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+      },
       {
         x: (width * 2) / 9,
         y: (height * 2) / 3,
         r0: 90,
         color: "#e6ceb2",
         id: 3,
+        team: 1,
       },
-      { x: (width * 3) / 9, y: height / 6, r0: 90, color: "#e6ceb2", id: 4 },
+      {
+        x: (width * 3) / 9,
+        y: height / 6,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+      },
       {
         x: (width * 3) / 9,
         y: (height * 5) / 6,
         r0: 90,
         color: "#e6ceb2",
         id: 5,
+        team: 1,
       },
-
-      { x: width - width / 9, y: height / 2, r0: -90, color: "#b2e6ce", id: 1 },
+    ];
+    const team2Pos = [
+      {
+        x: width - width / 9,
+        y: height / 2,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+      },
       {
         x: width - (width * 2) / 9,
         y: height / 3,
         r0: -90,
         color: "#b2e6ce",
         id: 2,
+        team: 2,
       },
       {
         x: width - (width * 2) / 9,
@@ -3353,6 +3390,7 @@
         r0: -90,
         color: "#b2e6ce",
         id: 3,
+        team: 2,
       },
       {
         x: width - (width * 3) / 9,
@@ -3360,6 +3398,7 @@
         r0: -90,
         color: "#b2e6ce",
         id: 4,
+        team: 2,
       },
       {
         x: width - (width * 3) / 9,
@@ -3367,14 +3406,25 @@
         r0: -90,
         color: "#b2e6ce",
         id: 5,
+        team: 2,
       },
     ];
+    console.log(team1Pos.slice(0, 4));
+    const positions = team1Pos.slice(0, nTeam1).concat(team2Pos.slice(0, nTeam2));
+    console.log(positions);
+    return positions;
   };
 
   const getDefensiveFormation = (width, height) => {
     return [
       { x: width / 9, y: height / 2, r0: 90, color: "#e6ceb2", id: 1 },
-      { x: (width * 2) / 9, y: height *2/ 5, r0: 135, color: "#e6ceb2", id: 2 },
+      {
+        x: (width * 2) / 9,
+        y: (height * 2) / 5,
+        r0: 135,
+        color: "#e6ceb2",
+        id: 2,
+      },
       {
         x: (width * 2) / 9,
         y: (height * 3) / 5,
@@ -3382,7 +3432,13 @@
         color: "#e6ceb2",
         id: 3,
       },
-      { x: (width * 3) / 9, y: height *3/ 10, r0: 120, color: "#e6ceb2", id: 4 },
+      {
+        x: (width * 3) / 9,
+        y: (height * 3) / 10,
+        r0: 120,
+        color: "#e6ceb2",
+        id: 4,
+      },
       {
         x: (width * 3) / 9,
         y: (height * 7) / 10,
@@ -3423,7 +3479,8 @@
     ];
   };
 
-  const generateBoatPath = (x, y, w, h) => {
+  const generateBoatPath = (x, y, w, height) => {
+    let h = height/2;
     let pathD = `M ${x - w / 2} ${y},
   C ${x - w / 2} ${y}, ${x - w / 4} ${y + h}, ${x - w / 4} ${y + h},
   C ${x - w / 4} ${y + h},${x} ${y + h + h * 0.1},${x + w / 4} ${y + h}
@@ -3483,16 +3540,21 @@
 
   const canoePoloWhiteboard = () => {
     let boatState;
-    let transitionDuration=1000;
+    let transitionDuration = 1000;
 
     const my = (svg) => {
       //   console.log(screen.height);
 
       const width = svg.node().getBoundingClientRect().width;
       const height = svg.node().getBoundingClientRect().height;
-      console.log(width, height);
+      // console.log(width, height)
       const smallAxis = min([width, height]);
       svg.attr("viewBox", `0 0 ${width} ${height}`);
+
+      const boatWidth = smallAxis / 20;
+      const boatHeight = smallAxis / 4;
+      const goalHeight = height / 10;
+      const goalWidth = width * 0.005;
 
       if (!boatState) {
         boatState = getInitialBoatState(width, height);
@@ -3500,17 +3562,20 @@
 
       const playingArea = svg
         .selectAll(".playingArea")
-        .data([{width: width, height: height}])
+        .data([{ width: width, height: height }])
         .join("g")
-        .attr("transform", d=>`translate(${d.width*0.01}, ${d.height*0.01})`)
+        .attr(
+          "transform",
+          (d) => `translate(${d.width * 0.01}, ${d.height * 0.01})`
+        )
         .attr("class", "playingArea");
 
       playingArea
         .selectAll("#pitch")
-        .data(playingAreaData => [playingAreaData])
+        .data((playingAreaData) => [playingAreaData])
         .join("rect")
-        .attr("width", d => d.width*0.98)
-        .attr("height",d=>d.height*0.98)
+        .attr("width", (d) => d.width * 0.98)
+        .attr("height", (d) => d.height * 0.98)
         .attr("x", 0)
         .attr("y", 0)
         .attr("id", "pitch")
@@ -3518,12 +3583,9 @@
         .attr("stroke-width", 2)
         .attr("fill", "#ecf2f9");
 
-      const goalHeight = height/10;
-      const goalWidth = width*0.005;
-
       playingArea
         .selectAll(".goals")
-        .data([0 - goalWidth, width *0.98])
+        .data([0 - goalWidth, width * 0.98])
         .join("rect")
         .attr("x", (d) => d)
         .attr("class", "goals")
@@ -3531,6 +3593,17 @@
         .attr("width", goalWidth)
         .attr("height", goalHeight);
 
+      playingArea
+        .selectAll(".area-lines")
+        .data([2 * boatHeight, width * 0.98 - 2 * boatHeight])
+        .join("line")
+        .attr("class", "area-lines")
+        .attr("x1", (d) => d)
+        .attr("x2", (d) => d)
+        .attr("y1", 0)
+        .attr("y2", height * 0.98)
+        .attr("stroke", "#cc6695")
+        .attr("stroke-width", 0.3);
       let drag$1 = drag().on("drag", handleDrag);
       let rotation = drag().on("drag", handleRotation);
 
@@ -3547,8 +3620,6 @@
                 (d) => `translate(${d.x},${d.y}) rotate(${d.r0})`
               );
 
-            const boatWidth = smallAxis / 20;
-            const boatHeight = smallAxis / 7;
             const boats = g
               .selectAll(".boat")
               .data((nodeData) => [nodeData])
@@ -3562,7 +3633,7 @@
             const rotationHandles = g
               .append("circle")
               .attr("cx", 0)
-              .attr("cy", boatHeight + boatWidth / 2)
+              .attr("cy", boatHeight / 2 + boatWidth / 2)
               .attr("r", boatWidth / 8)
               .attr("fill", "#0d1926")
               .attr("stroke", "#0d1926")
@@ -3600,11 +3671,18 @@
               rotationHandles.call(rotation);
             }
           },
-          (update) =>
-            update.transition().duration(transitionDuration).attr(
-              "transform",
-              (d) => d.r? `translate(${d.x},${d.y}) rotate(${d.r})`: `translate(${d.x},${d.y}) rotate(${d.r0})`
-            )
+          (update) => {
+            update
+              .transition()
+              .ease(linear)
+              .duration(transitionDuration)
+              .attr("transform", (d) =>
+                d.r
+                  ? `translate(${d.x},${d.y}) rotate(${d.r})`
+                  : `translate(${d.x},${d.y}) rotate(${d.r0})`
+              );
+            update.selectAll(".boat").attr("fill", (d) => d.color);
+          }
         );
 
       // const arrows = nodes
@@ -3617,6 +3695,9 @@
     };
     my.boatState = function (_) {
       return arguments.length ? ((boatState = _), my) : my;
+    };
+    my.transitionDuration = function (_) {
+      return arguments.length ? ((transitionDuration = _), my) : my;
     };
     return my;
   };
@@ -3634,41 +3715,34 @@
       await elem.msRequestFullscreen();
     }
 
-    const svg = d3.select("#whiteboard-svg");
-    const pitch = d3.select("#pitch");
+    // const svg = d3.select("#whiteboard-svg");
+    // const pitch = d3.select("#pitch");
 
     resetScreen("whiteboard-svg", true);
 
-    svg
-      .append("path")
-      .attr("d", d3.symbol(d3.symbolCross).size(pitch.attr("width") / 8))
-      .attr("transform", `translate(${pitch.attr("width") - 20},30) rotate(45)`)
-      .attr("stroke", "black")
-      .attr("stroke-width", 1)
-      .attr("fill", "rgba(0,0,0,0.2)")
-      .attr("id", "exit-button")
+    // d3.select("#fullscreen-button")
+    //   .classed("fa-maximize", false)
+    //   .classed("fa-xmark", true);
+    document.getElementById("fullscreen-button").classList.remove("fa-maximize");
+    document.getElementById("fullscreen-button").classList.add("fa-xmark");
+    document.getElementById("fullscreen-button").onclick = exitFullscreen;
+  };
 
-      .on("click", function (event) {
-        document.exitFullscreen();
-        this.remove();
-        d3.select("#save-button").remove();
-      });
-
-    svg
-      .append("text")
-      .attr("id", "save-button")
-      .attr("font-family", "FontAwesome")
-      .attr("font-size", 20)
-
-      .text("\uf019")
-      .attr("transform", `translate(${pitch.attr("width") - 55},36)`)
-      .on("click", (event) => {
-        saveChart("whiteboard-svg");
-      });
+  const exitFullscreen = () => {
+    console.log("exiting");
+    resetScreen("whiteboard-svg", false);
+    // d3.select("#fullscreen-button")
+    //   .classed("fa-xmark", false)
+    //   .classed("fa-maximize", true);
+    document.getElementById("fullscreen-button").classList.remove("fa-xmark");
+    document.getElementById("fullscreen-button").classList.add("fa-maximize");
+    document.getElementById("fullscreen-button").onclick = () =>
+      displayFullScreen("chart");
+    document.exitFullscreen();
   };
 
   const resetScreen = (id, resetBoats) => {
-    console.log("reset");
+    // console.log("reset");
 
     const svg = d3.select("#" + id);
     document.getElementById("chart").style.width = `${
@@ -3678,10 +3752,10 @@
     window.innerHeight * 0.99 - 50
   }px`;
 
-    console.log(
-      svg.node().getBoundingClientRect().width,
-      svg.node().getBoundingClientRect().height
-    );
+    // console.log(
+    //   svg.node().getBoundingClientRect().width,
+    //   svg.node().getBoundingClientRect().height
+    // );
     let boatState;
     if (resetBoats) {
       boatState = getInitialBoatState(
@@ -3699,10 +3773,837 @@
     svg.call(whiteboard);
   };
 
+  const demoWidth = 1313;
+  const demoHeight = 756;
+  const demoStates = [
+    [
+      {
+        x: 108,
+        y: 381,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 1,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 19,
+        y: 191,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 22,
+        y: 490,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 12,
+        y: 88,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 31,
+        y: 607,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 1201,
+        y: 378,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1290,
+        y: 269,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1294,
+        y: 513,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1295,
+        y: 133,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1297,
+        y: 607,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+        team: 2,
+        r: -90,
+      },
+    ],
+    [
+      {
+        x: 451,
+        y: 384,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 1,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 19,
+        y: 191,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 22,
+        y: 490,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 12,
+        y: 88,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 31,
+        y: 607,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 935,
+        y: 384,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1290,
+        y: 269,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1294,
+        y: 513,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1295,
+        y: 133,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1297,
+        y: 607,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+        team: 2,
+        r: -90,
+      },
+    ],
+    [
+      {
+        x: 639,
+        y: 385,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 1,
+        team: 1,
+        r: 94.45899552514572,
+      },
+      {
+        x: 412,
+        y: 248,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+        r: 105.10109816138544,
+      },
+      {
+        x: 107,
+        y: 381,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 181,
+        y: 158,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 208,
+        y: 545,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 756,
+        y: 353,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -79.6111421845304,
+      },
+      {
+        x: 1231,
+        y: 377,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1032,
+        y: 511,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1046,
+        y: 158,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+        team: 2,
+        r: -102.76556578105863,
+      },
+      {
+        x: 919,
+        y: 593,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+        team: 2,
+        r: -70.28570548470194,
+      },
+    ],
+    [
+      {
+        x: 806,
+        y: 410,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 1,
+        team: 1,
+        r: 165.25643716352926,
+      },
+      {
+        x: 529,
+        y: 229,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+        r: 103.85141901380499,
+      },
+      {
+        x: 107,
+        y: 381,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 271,
+        y: 303,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 125.67640822186198,
+      },
+      {
+        x: 265,
+        y: 435,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 52.707485722964975,
+      },
+      {
+        x: 634,
+        y: 343,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -79.6111421845304,
+      },
+      {
+        x: 1037,
+        y: 384,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 734,
+        y: 603,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 754,
+        y: 146,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+        team: 2,
+        r: -102.76556578105863,
+      },
+      {
+        x: 616,
+        y: 490,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+        team: 2,
+        r: -70.28570548470194,
+      },
+    ],
+    [
+      {
+        x: 806,
+        y: 410,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 1,
+        team: 1,
+        r: 165.25643716352926,
+      },
+      {
+        x: 468,
+        y: 303,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+        r: 163.94001269283936,
+      },
+      {
+        x: 107,
+        y: 381,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 271,
+        y: 303,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 125.67640822186198,
+      },
+      {
+        x: 265,
+        y: 435,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 52.707485722964975,
+      },
+      {
+        x: 634,
+        y: 343,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -79.6111421845304,
+      },
+      {
+        x: 691,
+        y: 521,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 339,
+        y: 548,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+        team: 2,
+        r: -60.255118703057775,
+      },
+      {
+        x: 545,
+        y: 144,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+        team: 2,
+        r: -102.76556578105863,
+      },
+      {
+        x: 410,
+        y: 496,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+        team: 2,
+        r: -51.86999230821426,
+      },
+    ],
+    [
+      {
+        x: 806,
+        y: 410,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 1,
+        team: 1,
+        r: 165.25643716352926,
+      },
+      {
+        x: 468,
+        y: 303,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+        r: 163.94001269283936,
+      },
+      {
+        x: 107,
+        y: 381,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 278,
+        y: 189,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 125.67640822186198,
+      },
+      {
+        x: 297,
+        y: 280,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 52.707485722964975,
+      },
+      {
+        x: 593,
+        y: 449,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -79.6111421845304,
+      },
+      {
+        x: 377,
+        y: 575,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+        team: 2,
+        r: -61.4293014515334,
+      },
+      {
+        x: 329,
+        y: 399,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+        team: 2,
+        r: -60.255118703057775,
+      },
+      {
+        x: 624,
+        y: 238,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+        team: 2,
+        r: -169.6336773965495,
+      },
+      {
+        x: 397,
+        y: 358,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+        team: 2,
+        r: -51.86999230821426,
+      },
+    ],
+    [
+      {
+        x: 806,
+        y: 410,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 1,
+        team: 1,
+        r: 165.25643716352926,
+      },
+      {
+        x: 468,
+        y: 303,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+        r: 163.94001269283936,
+      },
+      {
+        x: 107,
+        y: 381,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 278,
+        y: 189,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 125.67640822186198,
+      },
+      {
+        x: 297,
+        y: 280,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 52.707485722964975,
+      },
+      {
+        x: 593,
+        y: 449,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -79.6111421845304,
+      },
+      {
+        x: 245,
+        y: 530,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+        team: 2,
+        r: -61.4293014515334,
+      },
+      {
+        x: 329,
+        y: 399,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+        team: 2,
+        r: -60.255118703057775,
+      },
+      {
+        x: 624,
+        y: 238,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+        team: 2,
+        r: -169.6336773965495,
+      },
+      {
+        x: 397,
+        y: 358,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+        team: 2,
+        r: -51.86999230821426,
+      },
+    ],
+    [
+      {
+        x: 806,
+        y: 410,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 1,
+        team: 1,
+        r: 165.25643716352926,
+      },
+      {
+        x: 468,
+        y: 303,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+        r: 163.94001269283936,
+      },
+      {
+        x: 107,
+        y: 381,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 278,
+        y: 189,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 125.67640822186198,
+      },
+      {
+        x: 297,
+        y: 280,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 52.707485722964975,
+      },
+      {
+        x: 593,
+        y: 449,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -79.6111421845304,
+      },
+      {
+        x: 245,
+        y: 530,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+        team: 2,
+        r: -61.4293014515334,
+      },
+      {
+        x: 329,
+        y: 399,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+        team: 2,
+        r: -60.255118703057775,
+      },
+      {
+        x: 624,
+        y: 238,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+        team: 2,
+        r: -169.6336773965495,
+      },
+      {
+        x: 397,
+        y: 358,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+        team: 2,
+        r: -51.86999230821426,
+      },
+    ],
+  ];
+
+  const getDemoStates = () => {
+  const svg = d3.select("#whiteboard-svg");
+    const width = svg.node().getBoundingClientRect().width;
+    const height = svg.node().getBoundingClientRect().height;
+
+    demoStates.map((d) => {
+      d.x = (d.x * demoWidth) / width;
+      d.y = (d.y * demoHeight) / height;
+      return d;
+    });
+
+    return demoStates
+  };
+
+  const saveState = () => {
+    const svg = d3.select("#whiteboard-svg");
+    const arr = svg.selectAll(".nodes").data();
+    const newArr = structuredClone(arr);
+    //   console.log(arr[0]);
+    window.states.push(newArr);
+    console.log("state-saved");
+    document.getElementById("state-count").innerHTML = window.states.length;
+  };
+
+  const reanimateStates = async (demo = false) => {
+    //   console.log(window.states);
+    const duration = document.getElementById("duration").value * 1000;
+    console.log("here");
+    const svg = d3.select("#whiteboard-svg");
+    let states = demo? getDemoStates() : window.states;
+      
+    for (let i = 0; i < states.length; i++) {
+      console.log(states[i]);
+
+      const newWhiteboard = canoePoloWhiteboard()
+        .boatState(states[i])
+        .transitionDuration(i === 0 ? 500 : duration);
+
+      svg.call(newWhiteboard);
+      await delay(i === 0 ? 500 : duration);
+    }
+    console.log(states);
+  };
+  const delay = (delayInms) => {
+    return new Promise((resolve) => setTimeout(resolve, delayInms));
+  };
+
+  const animationInstructions = () => {
+    alert(
+      `How to Animate \n
+    An animation is created by saving positions and then moving the boats directly between those positions. 
+     Step 1: Save the initial positions with the 'Save State' button.
+     Step 2: Move the boats to a new position and click 'Save State'. You may change as many boats as you wish between states.
+     Step 3: Repeat for any amount of positions
+     Step 4: Choose the duration of the animation between each state (note total duration = time per state X number of states)
+     Step 5: Click 'Animate' and the screen will animate the pre-defined states
+     
+Want an example? Click demo!`
+    );
+  };
+
+  const clearAnimation = () => {
+    window.states = [];
+    document.getElementById("state-count").innerHTML = window.states.length;
+  };
+
+  //Button functions:
   window.resetScreen = resetScreen;
   window.mobile = checkMobile();
   window.saveChart = saveChart;
   window.savePng = saveChartPng;
+
+  // Animation functions:
+  window.states = [];
+  window.saveState = saveState;
+  window.reanimateStates = reanimateStates;
+  window.clearAnimation = clearAnimation;
+  window.animationInstructions = animationInstructions;
+
+  // document.getElementById("orange-boats").addEventListener("change", (event) => {
+  //   const team = 1;
+  //   console.log(event.target.value);
+
+  //   const filtered = d3.selectAll(".nodes").filter((d) => {
+  //     console.log(d);
+  //     return d.id > event.target.value;
+  //   }).remove(); //.remove()
+  //   // const filtered= data.filter(d=> d.id<=event.target.value)
+  //   console.log(filtered);
+  // });
 
   const div = select("#chart");
   document.getElementById("chart").style.width = `${window.innerWidth * 0.99}px`;
