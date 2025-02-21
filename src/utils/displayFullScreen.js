@@ -1,6 +1,7 @@
 import { canoePoloWhiteboard } from "../canoePoloWhiteboard";
-import { getInitialBoatState } from "../initialBoatState";
+import { getInitialBallState, getInitialBoatState } from "../initialBoatState";
 import { saveChart } from "./saveChart.js";
+import { Ball } from "../ball.js";
 export const displayFullScreen = async (id) => {
   var elem = document.getElementById(id);
 
@@ -56,8 +57,13 @@ export const resetScreen = (id, resetBoats) => {
   //   svg.node().getBoundingClientRect().height
   // );
   let boatState;
+  let ballState;
   if (resetBoats) {
     boatState = getInitialBoatState(
+      svg.node().getBoundingClientRect().width,
+      svg.node().getBoundingClientRect().height
+    );
+    ballState = getInitialBallState(
       svg.node().getBoundingClientRect().width,
       svg.node().getBoundingClientRect().height
     );
@@ -70,4 +76,8 @@ export const resetScreen = (id, resetBoats) => {
   console.log(boatState);
   const whiteboard = canoePoloWhiteboard().boatState(boatState);
   svg.call(whiteboard);
+  if (window.ball) {
+    const ball = Ball().ballState(ballState);
+    svg.call(ball);
+  }
 };

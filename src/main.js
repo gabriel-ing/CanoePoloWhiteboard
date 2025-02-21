@@ -10,7 +10,18 @@ import {
   reanimateStates,
   saveState,
 } from "./utils/animate.js";
+import { Ball } from "./ball.js";
 
+window.ball = document.getElementById("ball-checkbox").checked;
+document.getElementById("ball-checkbox").addEventListener("change", (event) => {
+  window.ball = event.target.checked;
+  if (window.ball) {
+    const ball = Ball();
+    svg.call(ball);
+  } else {
+    svg.selectAll(".ball").remove();
+  }
+});
 //Button functions:
 window.resetScreen = resetScreen;
 window.mobile = checkMobile();
@@ -19,6 +30,7 @@ window.savePng = saveChartPng;
 
 // Animation functions:
 window.states = [];
+window.ballStates = [];
 window.saveState = saveState;
 window.reanimateStates = reanimateStates;
 window.clearAnimation = clearAnimation;
@@ -36,6 +48,14 @@ window.animationInstructions = animationInstructions;
 //   console.log(filtered);
 // });
 
+const windowWidth = window.innerWidth;
+const windowHeight = window.innerHeight;
+
+if (windowHeight > windowWidth)
+  alert(
+    `It looks like your screen is in portrait, this app will work better in landscape so I recommend rotating your screen and reloading the page!`
+  );
+
 const div = d3.select("#chart");
 document.getElementById("chart").style.width = `${window.innerWidth * 0.99}px`;
 document.getElementById("chart").style.height = `${
@@ -51,14 +71,11 @@ const svg = div
   .attr("width", "100%")
   .attr("height", "100%");
 
-window.changeState = () => {
-  const state = getDefensiveFormation(
-    svg.node().getBoundingClientRect().width,
-    svg.node().getBoundingClientRect().height
-  );
-  const newState = canoePoloWhiteboard().boatState(state);
-  svg.call(newState);
-};
 const whiteboard = canoePoloWhiteboard();
 
 svg.call(whiteboard);
+
+if (window.ball) {
+  const ball = Ball();
+  svg.call(ball);
+}

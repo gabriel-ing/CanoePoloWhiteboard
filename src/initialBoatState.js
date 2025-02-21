@@ -76,10 +76,18 @@ export const getInitialBoatState = (width, height, nTeam1 = 5, nTeam2 = 5) => {
       team: 2,
     },
   ];
-  console.log(team1Pos.slice(0, 4));
+  //   console.log(team1Pos.slice(0, 4));
   const positions = team1Pos.slice(0, nTeam1).concat(team2Pos.slice(0, nTeam2));
-  console.log(positions);
+  //   console.log(positions);
   return positions;
+};
+
+export const getInitialBallState = (width, height) => {
+  return {
+    x: width / 2 + 0.02 * width,
+    y: height / 2 + 0.02 * height,
+    r0: 0,
+  };
 };
 
 export const getDefensiveFormation = (width, height) => {

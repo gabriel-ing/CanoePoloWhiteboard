@@ -3409,74 +3409,18 @@
         team: 2,
       },
     ];
-    console.log(team1Pos.slice(0, 4));
+    //   console.log(team1Pos.slice(0, 4));
     const positions = team1Pos.slice(0, nTeam1).concat(team2Pos.slice(0, nTeam2));
-    console.log(positions);
+    //   console.log(positions);
     return positions;
   };
 
-  const getDefensiveFormation = (width, height) => {
-    return [
-      { x: width / 9, y: height / 2, r0: 90, color: "#e6ceb2", id: 1 },
-      {
-        x: (width * 2) / 9,
-        y: (height * 2) / 5,
-        r0: 135,
-        color: "#e6ceb2",
-        id: 2,
-      },
-      {
-        x: (width * 2) / 9,
-        y: (height * 3) / 5,
-        r0: 45,
-        color: "#e6ceb2",
-        id: 3,
-      },
-      {
-        x: (width * 3) / 9,
-        y: (height * 3) / 10,
-        r0: 120,
-        color: "#e6ceb2",
-        id: 4,
-      },
-      {
-        x: (width * 3) / 9,
-        y: (height * 7) / 10,
-        r0: 70,
-        color: "#e6ceb2",
-        id: 5,
-      },
-
-      { x: width - width / 9, y: height / 2, r0: -90, color: "#b2e6ce", id: 1 },
-      {
-        x: width - (width * 2) / 9,
-        y: height / 3,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 2,
-      },
-      {
-        x: width - (width * 2) / 9,
-        y: (height * 2) / 3,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 3,
-      },
-      {
-        x: width - (width * 3) / 9,
-        y: height / 6,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 4,
-      },
-      {
-        x: width - (width * 3) / 9,
-        y: (height * 5) / 6,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 5,
-      },
-    ];
+  const getInitialBallState = (width, height) => {
+    return {
+      x: width / 2 + 0.02 * width,
+      y: height / 2 + 0.02 * height,
+      r0: 0,
+    };
   };
 
   const generateBoatPath = (x, y, w, height) => {
@@ -3702,6 +3646,66 @@
     return my;
   };
 
+  const Ball = () => {
+    let ballState;
+    let transitionDuration = 1000;
+    const my = (svg) => {
+      const width = svg.node().getBoundingClientRect().width;
+      const height = svg.node().getBoundingClientRect().height;
+      const radius = width / 120;
+      if (!ballState)
+        ballState = {
+          x: width / 2 + 0.02 * width,
+          y: height / 2 + 0.02 * height,
+          r0: 0,
+        };
+      svg
+        .selectAll(".ball")
+        .data([ballState])
+        .join(
+          (enter) => {
+            const g = enter
+              .append("g")
+              .attr("transform", (d) => `translate(${d.x},  ${d.y})`)
+              .attr("class", "ball");
+
+            const circle = g
+              .append("circle")
+              .attr("stroke-width", 2)
+              .attr("stroke", "black")
+              .attr("cx", 0)
+              .attr("cy", 0)
+              .attr("fill", "#e6dfb2")
+              .attr("r", radius);
+
+            if (window.mobile) {
+              circle.on("touchmove", handleDrag);
+            } else {
+              let drag = d3.drag().on("drag", handleDrag);
+              circle.call(drag);
+            }
+          },
+          (update) => {
+            update
+              .transition()
+              .ease(d3.easeLinear)
+              .duration(transitionDuration)
+              .attr("transform", (d) => {
+              //   console.log(d);
+                return `translate(${d.x},  ${d.y})`;
+              });
+          }
+        );
+    };
+    my.ballState = function (_) {
+      return arguments.length ? ((ballState = _), my) : my;
+    };
+    my.transitionDuration = function (_) {
+      return arguments.length ? ((transitionDuration = _), my) : my;
+    };
+    return my;
+  };
+
   const displayFullScreen = async (id) => {
     var elem = document.getElementById(id);
 
@@ -3757,8 +3761,13 @@
     //   svg.node().getBoundingClientRect().height
     // );
     let boatState;
+    let ballState;
     if (resetBoats) {
       boatState = getInitialBoatState(
+        svg.node().getBoundingClientRect().width,
+        svg.node().getBoundingClientRect().height
+      );
+      ballState = getInitialBallState(
         svg.node().getBoundingClientRect().width,
         svg.node().getBoundingClientRect().height
       );
@@ -3771,6 +3780,10 @@
     console.log(boatState);
     const whiteboard = canoePoloWhiteboard().boatState(boatState);
     svg.call(whiteboard);
+    if (window.ball) {
+      const ball = Ball().ballState(ballState);
+      svg.call(ball);
+    }
   };
 
   const demoWidth = 1313;
@@ -3778,8 +3791,8 @@
   const demoStates = [
     [
       {
-        x: 108,
-        y: 381,
+        x: 109,
+        y: 379,
         r0: 90,
         color: "#e6ceb2",
         id: 1,
@@ -3787,8 +3800,8 @@
         r: 90,
       },
       {
-        x: 19,
-        y: 191,
+        x: 32,
+        y: 245,
         r0: 90,
         color: "#e6ceb2",
         id: 2,
@@ -3796,8 +3809,8 @@
         r: 90,
       },
       {
-        x: 22,
-        y: 490,
+        x: 25,
+        y: 533,
         r0: 90,
         color: "#e6ceb2",
         id: 3,
@@ -3805,8 +3818,8 @@
         r: 90,
       },
       {
-        x: 12,
-        y: 88,
+        x: 29,
+        y: 107,
         r0: 90,
         color: "#e6ceb2",
         id: 4,
@@ -3814,8 +3827,8 @@
         r: 90,
       },
       {
-        x: 31,
-        y: 607,
+        x: 24,
+        y: 627,
         r0: 90,
         color: "#e6ceb2",
         id: 5,
@@ -3823,7 +3836,7 @@
         r: 90,
       },
       {
-        x: 1201,
+        x: 1207,
         y: 378,
         r0: -90,
         color: "#b2e6ce",
@@ -3832,8 +3845,8 @@
         r: -90,
       },
       {
-        x: 1290,
-        y: 269,
+        x: 1284,
+        y: 253,
         r0: -90,
         color: "#b2e6ce",
         id: 2,
@@ -3841,8 +3854,8 @@
         r: -90,
       },
       {
-        x: 1294,
-        y: 513,
+        x: 1289,
+        y: 499,
         r0: -90,
         color: "#b2e6ce",
         id: 3,
@@ -3850,8 +3863,8 @@
         r: -90,
       },
       {
-        x: 1295,
-        y: 133,
+        x: 1277,
+        y: 138,
         r0: -90,
         color: "#b2e6ce",
         id: 4,
@@ -3859,8 +3872,8 @@
         r: -90,
       },
       {
-        x: 1297,
-        y: 607,
+        x: 1291,
+        y: 619,
         r0: -90,
         color: "#b2e6ce",
         id: 5,
@@ -3870,17 +3883,17 @@
     ],
     [
       {
-        x: 451,
-        y: 384,
+        x: 327,
+        y: 379,
         r0: 90,
         color: "#e6ceb2",
         id: 1,
         team: 1,
-        r: 90,
+        r: 97.30575953331082,
       },
       {
-        x: 19,
-        y: 191,
+        x: 32,
+        y: 245,
         r0: 90,
         color: "#e6ceb2",
         id: 2,
@@ -3888,8 +3901,8 @@
         r: 90,
       },
       {
-        x: 22,
-        y: 490,
+        x: 25,
+        y: 533,
         r0: 90,
         color: "#e6ceb2",
         id: 3,
@@ -3897,8 +3910,8 @@
         r: 90,
       },
       {
-        x: 12,
-        y: 88,
+        x: 29,
+        y: 107,
         r0: 90,
         color: "#e6ceb2",
         id: 4,
@@ -3906,8 +3919,8 @@
         r: 90,
       },
       {
-        x: 31,
-        y: 607,
+        x: 24,
+        y: 627,
         r0: 90,
         color: "#e6ceb2",
         id: 5,
@@ -3915,17 +3928,17 @@
         r: 90,
       },
       {
-        x: 935,
-        y: 384,
+        x: 981,
+        y: 361,
         r0: -90,
         color: "#b2e6ce",
         id: 1,
         team: 2,
-        r: -90,
+        r: -96.76617482255305,
       },
       {
-        x: 1290,
-        y: 269,
+        x: 1284,
+        y: 253,
         r0: -90,
         color: "#b2e6ce",
         id: 2,
@@ -3933,8 +3946,8 @@
         r: -90,
       },
       {
-        x: 1294,
-        y: 513,
+        x: 1289,
+        y: 499,
         r0: -90,
         color: "#b2e6ce",
         id: 3,
@@ -3942,8 +3955,8 @@
         r: -90,
       },
       {
-        x: 1295,
-        y: 133,
+        x: 1277,
+        y: 138,
         r0: -90,
         color: "#b2e6ce",
         id: 4,
@@ -3951,8 +3964,8 @@
         r: -90,
       },
       {
-        x: 1297,
-        y: 607,
+        x: 1291,
+        y: 619,
         r0: -90,
         color: "#b2e6ce",
         id: 5,
@@ -3962,246 +3975,62 @@
     ],
     [
       {
-        x: 639,
-        y: 385,
+        x: 465,
+        y: 403,
         r0: 90,
         color: "#e6ceb2",
         id: 1,
         team: 1,
-        r: 94.45899552514572,
+        r: 97.30575953331082,
       },
       {
-        x: 412,
-        y: 248,
+        x: 75,
+        y: 367,
         r0: 90,
         color: "#e6ceb2",
         id: 2,
         team: 1,
-        r: 105.10109816138544,
-      },
-      {
-        x: 107,
-        y: 381,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 3,
-        team: 1,
         r: 90,
       },
       {
-        x: 181,
-        y: 158,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 4,
-        team: 1,
-        r: 90,
-      },
-      {
-        x: 208,
-        y: 545,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 5,
-        team: 1,
-        r: 90,
-      },
-      {
-        x: 756,
-        y: 353,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 1,
-        team: 2,
-        r: -79.6111421845304,
-      },
-      {
-        x: 1231,
-        y: 377,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 2,
-        team: 2,
-        r: -90,
-      },
-      {
-        x: 1032,
-        y: 511,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 3,
-        team: 2,
-        r: -90,
-      },
-      {
-        x: 1046,
-        y: 158,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 4,
-        team: 2,
-        r: -102.76556578105863,
-      },
-      {
-        x: 919,
-        y: 593,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 5,
-        team: 2,
-        r: -70.28570548470194,
-      },
-    ],
-    [
-      {
-        x: 806,
-        y: 410,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 1,
-        team: 1,
-        r: 165.25643716352926,
-      },
-      {
-        x: 529,
-        y: 229,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 2,
-        team: 1,
-        r: 103.85141901380499,
-      },
-      {
-        x: 107,
-        y: 381,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 3,
-        team: 1,
-        r: 90,
-      },
-      {
-        x: 271,
-        y: 303,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 4,
-        team: 1,
-        r: 125.67640822186198,
-      },
-      {
-        x: 265,
-        y: 435,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 5,
-        team: 1,
-        r: 52.707485722964975,
-      },
-      {
-        x: 634,
-        y: 343,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 1,
-        team: 2,
-        r: -79.6111421845304,
-      },
-      {
-        x: 1037,
-        y: 384,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 2,
-        team: 2,
-        r: -90,
-      },
-      {
-        x: 734,
-        y: 603,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 3,
-        team: 2,
-        r: -90,
-      },
-      {
-        x: 754,
-        y: 146,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 4,
-        team: 2,
-        r: -102.76556578105863,
-      },
-      {
-        x: 616,
-        y: 490,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 5,
-        team: 2,
-        r: -70.28570548470194,
-      },
-    ],
-    [
-      {
-        x: 806,
-        y: 410,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 1,
-        team: 1,
-        r: 165.25643716352926,
-      },
-      {
-        x: 468,
-        y: 303,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 2,
-        team: 1,
-        r: 163.94001269283936,
-      },
-      {
-        x: 107,
-        y: 381,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 3,
-        team: 1,
-        r: 90,
-      },
-      {
-        x: 271,
-        y: 303,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 4,
-        team: 1,
-        r: 125.67640822186198,
-      },
-      {
-        x: 265,
-        y: 435,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 5,
-        team: 1,
-        r: 52.707485722964975,
-      },
-      {
-        x: 634,
-        y: 343,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 1,
-        team: 2,
-        r: -79.6111421845304,
-      },
-      {
-        x: 691,
+        x: 270,
         y: 521,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 191,
+        y: 232,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 110.80679101271123,
+      },
+      {
+        x: 133,
+        y: 641,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 63.91440022171858,
+      },
+      {
+        x: 719,
+        y: 396,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -96.76617482255305,
+      },
+      {
+        x: 981,
+        y: 245,
         r0: -90,
         color: "#b2e6ce",
         id: 2,
@@ -4209,353 +4038,806 @@
         r: -90,
       },
       {
-        x: 339,
-        y: 548,
+        x: 1003,
+        y: 489,
         r0: -90,
         color: "#b2e6ce",
         id: 3,
         team: 2,
-        r: -60.255118703057775,
+        r: -90,
       },
       {
-        x: 545,
-        y: 144,
+        x: 1277,
+        y: 138,
         r0: -90,
         color: "#b2e6ce",
         id: 4,
         team: 2,
-        r: -102.76556578105863,
+        r: -90,
       },
       {
-        x: 410,
-        y: 496,
+        x: 1291,
+        y: 619,
         r0: -90,
         color: "#b2e6ce",
         id: 5,
         team: 2,
-        r: -51.86999230821426,
+        r: -90,
       },
     ],
     [
       {
-        x: 806,
-        y: 410,
+        x: 742,
+        y: 471,
         r0: 90,
         color: "#e6ceb2",
         id: 1,
         team: 1,
-        r: 165.25643716352926,
+        r: 97.30575953331082,
       },
       {
-        x: 468,
-        y: 303,
+        x: 75,
+        y: 367,
         r0: 90,
         color: "#e6ceb2",
         id: 2,
-        team: 1,
-        r: 163.94001269283936,
-      },
-      {
-        x: 107,
-        y: 381,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 3,
         team: 1,
         r: 90,
       },
       {
-        x: 278,
-        y: 189,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 4,
-        team: 1,
-        r: 125.67640822186198,
-      },
-      {
-        x: 297,
-        y: 280,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 5,
-        team: 1,
-        r: 52.707485722964975,
-      },
-      {
-        x: 593,
-        y: 449,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 1,
-        team: 2,
-        r: -79.6111421845304,
-      },
-      {
-        x: 377,
-        y: 575,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 2,
-        team: 2,
-        r: -61.4293014515334,
-      },
-      {
-        x: 329,
-        y: 399,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 3,
-        team: 2,
-        r: -60.255118703057775,
-      },
-      {
-        x: 624,
-        y: 238,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 4,
-        team: 2,
-        r: -169.6336773965495,
-      },
-      {
-        x: 397,
-        y: 358,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 5,
-        team: 2,
-        r: -51.86999230821426,
-      },
-    ],
-    [
-      {
-        x: 806,
-        y: 410,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 1,
-        team: 1,
-        r: 165.25643716352926,
-      },
-      {
-        x: 468,
-        y: 303,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 2,
-        team: 1,
-        r: 163.94001269283936,
-      },
-      {
-        x: 107,
-        y: 381,
+        x: 325,
+        y: 513,
         r0: 90,
         color: "#e6ceb2",
         id: 3,
         team: 1,
-        r: 90,
-      },
-      {
-        x: 278,
-        y: 189,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 4,
-        team: 1,
-        r: 125.67640822186198,
-      },
-      {
-        x: 297,
-        y: 280,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 5,
-        team: 1,
-        r: 52.707485722964975,
-      },
-      {
-        x: 593,
-        y: 449,
-        r0: -90,
-        color: "#b2e6ce",
-        id: 1,
-        team: 2,
-        r: -79.6111421845304,
+        r: 52.84170321510306,
       },
       {
         x: 245,
-        y: 530,
+        y: 295,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 140.82634202955578,
+      },
+      {
+        x: 185,
+        y: 450,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 51.050235822898784,
+      },
+      {
+        x: 719,
+        y: 396,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -96.76617482255305,
+      },
+      {
+        x: 742,
+        y: 223,
         r0: -90,
         color: "#b2e6ce",
         id: 2,
         team: 2,
-        r: -61.4293014515334,
+        r: -90,
       },
       {
-        x: 329,
-        y: 399,
+        x: 759,
+        y: 570,
         r0: -90,
         color: "#b2e6ce",
         id: 3,
         team: 2,
-        r: -60.255118703057775,
+        r: -90,
       },
       {
-        x: 624,
-        y: 238,
+        x: 1277,
+        y: 138,
         r0: -90,
         color: "#b2e6ce",
         id: 4,
         team: 2,
-        r: -169.6336773965495,
+        r: -90,
       },
       {
-        x: 397,
-        y: 358,
+        x: 1291,
+        y: 619,
         r0: -90,
         color: "#b2e6ce",
         id: 5,
         team: 2,
-        r: -51.86999230821426,
+        r: -90,
       },
     ],
     [
       {
-        x: 806,
-        y: 410,
+        x: 742,
+        y: 471,
         r0: 90,
         color: "#e6ceb2",
         id: 1,
         team: 1,
-        r: 165.25643716352926,
+        r: 97.30575953331082,
       },
       {
-        x: 468,
-        y: 303,
+        x: 75,
+        y: 367,
         r0: 90,
         color: "#e6ceb2",
         id: 2,
-        team: 1,
-        r: 163.94001269283936,
-      },
-      {
-        x: 107,
-        y: 381,
-        r0: 90,
-        color: "#e6ceb2",
-        id: 3,
         team: 1,
         r: 90,
       },
       {
-        x: 278,
-        y: 189,
+        x: 325,
+        y: 513,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 52.84170321510306,
+      },
+      {
+        x: 245,
+        y: 295,
         r0: 90,
         color: "#e6ceb2",
         id: 4,
         team: 1,
-        r: 125.67640822186198,
+        r: 140.82634202955578,
       },
       {
-        x: 297,
-        y: 280,
+        x: 185,
+        y: 450,
         r0: 90,
         color: "#e6ceb2",
         id: 5,
         team: 1,
-        r: 52.707485722964975,
+        r: 51.050235822898784,
       },
       {
-        x: 593,
-        y: 449,
+        x: 553,
+        y: 285,
         r0: -90,
         color: "#b2e6ce",
         id: 1,
         team: 2,
-        r: -79.6111421845304,
+        r: -67.84665526222199,
       },
       {
-        x: 245,
-        y: 530,
+        x: 742,
+        y: 223,
         r0: -90,
         color: "#b2e6ce",
         id: 2,
         team: 2,
-        r: -61.4293014515334,
+        r: -90,
       },
       {
-        x: 329,
-        y: 399,
+        x: 510,
+        y: 536,
         r0: -90,
         color: "#b2e6ce",
         id: 3,
         team: 2,
-        r: -60.255118703057775,
+        r: -66.41834885515011,
       },
       {
-        x: 624,
-        y: 238,
+        x: 723,
+        y: 104,
         r0: -90,
         color: "#b2e6ce",
         id: 4,
         team: 2,
-        r: -169.6336773965495,
+        r: -90,
       },
       {
-        x: 397,
-        y: 358,
+        x: 1044,
+        y: 412,
         r0: -90,
         color: "#b2e6ce",
         id: 5,
         team: 2,
-        r: -51.86999230821426,
+        r: -90,
+      },
+    ],
+    [
+      {
+        x: 742,
+        y: 471,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 1,
+        team: 1,
+        r: 97.30575953331082,
+      },
+      {
+        x: 75,
+        y: 367,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 335,
+        y: 443,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 52.84170321510306,
+      },
+      {
+        x: 245,
+        y: 295,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 140.82634202955578,
+      },
+      {
+        x: 185,
+        y: 450,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 51.050235822898784,
+      },
+      {
+        x: 525,
+        y: 415,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -128.3513548167311,
+      },
+      {
+        x: 552,
+        y: 204,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 380,
+        y: 601,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+        team: 2,
+        r: -57.349197703404435,
+      },
+      {
+        x: 723,
+        y: 104,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1044,
+        y: 412,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+        team: 2,
+        r: -90,
+      },
+    ],
+    [
+      {
+        x: 637,
+        y: 483,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 1,
+        team: 1,
+        r: 239.4039905329373,
+      },
+      {
+        x: 75,
+        y: 367,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 355,
+        y: 363,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 52.84170321510306,
+      },
+      {
+        x: 271,
+        y: 203,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 140.82634202955578,
+      },
+      {
+        x: 288,
+        y: 346,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 51.050235822898784,
+      },
+      {
+        x: 434,
+        y: 501,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -62.995909297240345,
+      },
+      {
+        x: 552,
+        y: 204,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 273,
+        y: 517,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+        team: 2,
+        r: -57.349197703404435,
+      },
+      {
+        x: 651,
+        y: 302,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1044,
+        y: 412,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+        team: 2,
+        r: -90,
+      },
+    ],
+    [
+      {
+        x: 637,
+        y: 483,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 1,
+        team: 1,
+        r: 239.4039905329373,
+      },
+      {
+        x: 75,
+        y: 367,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 394,
+        y: 322,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 52.84170321510306,
+      },
+      {
+        x: 289,
+        y: 128,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 140.82634202955578,
+      },
+      {
+        x: 327,
+        y: 288,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 51.050235822898784,
+      },
+      {
+        x: 386,
+        y: 539,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -62.995909297240345,
+      },
+      {
+        x: 552,
+        y: 204,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 267,
+        y: 488,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+        team: 2,
+        r: -12.692665545117876,
+      },
+      {
+        x: 651,
+        y: 302,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1044,
+        y: 412,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+        team: 2,
+        r: -90,
+      },
+    ],
+    [
+      {
+        x: 637,
+        y: 483,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 1,
+        team: 1,
+        r: 239.4039905329373,
+      },
+      {
+        x: 75,
+        y: 367,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 394,
+        y: 322,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 52.84170321510306,
+      },
+      {
+        x: 289,
+        y: 128,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 140.82634202955578,
+      },
+      {
+        x: 352,
+        y: 238,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 51.050235822898784,
+      },
+      {
+        x: 283,
+        y: 527,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -62.995909297240345,
+      },
+      {
+        x: 552,
+        y: 204,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 287,
+        y: 403,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+        team: 2,
+        r: -1.481457170887083,
+      },
+      {
+        x: 651,
+        y: 302,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 1044,
+        y: 412,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+        team: 2,
+        r: -90,
+      },
+    ],
+    [
+      {
+        x: 637,
+        y: 483,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 1,
+        team: 1,
+        r: 239.4039905329373,
+      },
+      {
+        x: 75,
+        y: 367,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 2,
+        team: 1,
+        r: 90,
+      },
+      {
+        x: 394,
+        y: 322,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 3,
+        team: 1,
+        r: 52.84170321510306,
+      },
+      {
+        x: 289,
+        y: 128,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 4,
+        team: 1,
+        r: 140.82634202955578,
+      },
+      {
+        x: 352,
+        y: 238,
+        r0: 90,
+        color: "#e6ceb2",
+        id: 5,
+        team: 1,
+        r: 51.050235822898784,
+      },
+      {
+        x: 283,
+        y: 527,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 1,
+        team: 2,
+        r: -62.995909297240345,
+      },
+      {
+        x: 552,
+        y: 204,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 2,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 287,
+        y: 403,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 3,
+        team: 2,
+        r: -1.481457170887083,
+      },
+      {
+        x: 553,
+        y: 365,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 4,
+        team: 2,
+        r: -90,
+      },
+      {
+        x: 861,
+        y: 466,
+        r0: -90,
+        color: "#b2e6ce",
+        id: 5,
+        team: 2,
+        r: -90,
       },
     ],
   ];
-
+  const demoBallStates = [
+    {
+      x: 683.0909033203125,
+      y: 387.89486328125,
+      r0: 0,
+    },
+    {
+      x: 683.0909033203125,
+      y: 387.89486328125,
+      r0: 0,
+    },
+    {
+      x: 683.0909033203125,
+      y: 387.89486328125,
+      r0: 0,
+    },
+    {
+      x: 722,
+      y: 228,
+      r0: 0,
+      r: 0,
+    },
+    {
+      x: 698,
+      y: 115,
+      r0: 0,
+      r: 0,
+    },
+    {
+      x: 546,
+      y: 204,
+      r0: 0,
+      r: 0,
+    },
+    {
+      x: 640,
+      y: 305,
+      r0: 0,
+      r: 0,
+    },
+    {
+      x: 403,
+      y: 548,
+      r0: 0,
+      r: 0,
+    },
+    {
+      x: 278,
+      y: 541,
+      r0: 0,
+      r: 0,
+    },
+    {
+      x: 14,
+      y: 396,
+      r0: 0,
+      r: 0,
+    },
+  ];
   const getDemoStates = () => {
-  const svg = d3.select("#whiteboard-svg");
+    const svg = d3.select("#whiteboard-svg");
     const width = svg.node().getBoundingClientRect().width;
     const height = svg.node().getBoundingClientRect().height;
 
-    demoStates.map((d) => {
-      d.x = (d.x * demoWidth) / width;
-      d.y = (d.y * demoHeight) / height;
+    const demoStatesCopy = structuredClone(demoStates);
+    const scaledStates = demoStatesCopy.map((d) =>
+      d.map((v) => {
+        v.x = (v.x * width) / demoWidth;
+        v.y = (v.y * height) / demoHeight;
+        return v;
+      })
+    );
+
+    return scaledStates;
+  };
+  const getDemoBallStates = () => {
+    const svg = d3.select("#whiteboard-svg");
+    const width = svg.node().getBoundingClientRect().width;
+    const height = svg.node().getBoundingClientRect().height;
+    const demoBallStatesCopy = structuredClone(demoBallStates);
+
+    const scaledDemoBallStates = demoBallStatesCopy.map((d) => {
+      d.x = (d.x * width) / demoWidth;
+      d.y = (d.y * height) / demoHeight;
       return d;
     });
-
-    return demoStates
+    return scaledDemoBallStates;
   };
 
   const saveState = () => {
     const svg = d3.select("#whiteboard-svg");
     const arr = svg.selectAll(".nodes").data();
     const newArr = structuredClone(arr);
-    //   console.log(arr[0]);
+    if (window.ball) {
+      const ballState = structuredClone(svg.selectAll(".ball").data()[0]);
+      window.ballStates.push(ballState);
+    }
+
     window.states.push(newArr);
     console.log("state-saved");
     document.getElementById("state-count").innerHTML = window.states.length;
   };
 
   const reanimateStates = async (demo = false) => {
-    //   console.log(window.states);
     const duration = document.getElementById("duration").value * 1000;
     console.log("here");
     const svg = d3.select("#whiteboard-svg");
-    let states = demo? getDemoStates() : window.states;
-      
+    let states = demo ? getDemoStates() : window.states;
+
+    let ballStates = demo ? getDemoBallStates() : window.ballStates;
     for (let i = 0; i < states.length; i++) {
-      console.log(states[i]);
+      // console.log(states[i]);
 
       const newWhiteboard = canoePoloWhiteboard()
         .boatState(states[i])
         .transitionDuration(i === 0 ? 500 : duration);
 
       svg.call(newWhiteboard);
+      if (window.ball) {
+        const newBall = Ball()
+          .ballState(ballStates[i])
+          .transitionDuration(i === 0 ? 500 : duration);
+        svg.call(newBall);
+      }
       await delay(i === 0 ? 500 : duration);
     }
     console.log(states);
+    console.log(ballStates);
   };
   const delay = (delayInms) => {
     return new Promise((resolve) => setTimeout(resolve, delayInms));
@@ -4577,9 +4859,20 @@ Want an example? Click demo!`
 
   const clearAnimation = () => {
     window.states = [];
+    window.ballStates = [];
     document.getElementById("state-count").innerHTML = window.states.length;
   };
 
+  window.ball = document.getElementById("ball-checkbox").checked;
+  document.getElementById("ball-checkbox").addEventListener("change", (event) => {
+    window.ball = event.target.checked;
+    if (window.ball) {
+      const ball = Ball();
+      svg.call(ball);
+    } else {
+      svg.selectAll(".ball").remove();
+    }
+  });
   //Button functions:
   window.resetScreen = resetScreen;
   window.mobile = checkMobile();
@@ -4588,6 +4881,7 @@ Want an example? Click demo!`
 
   // Animation functions:
   window.states = [];
+  window.ballStates = [];
   window.saveState = saveState;
   window.reanimateStates = reanimateStates;
   window.clearAnimation = clearAnimation;
@@ -4605,6 +4899,14 @@ Want an example? Click demo!`
   //   console.log(filtered);
   // });
 
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+
+  if (windowHeight > windowWidth)
+    alert(
+      `It looks like your screen is in portrait, this app will work better in landscape so I recommend rotating your screen and reloading the page!`
+    );
+
   const div = select("#chart");
   document.getElementById("chart").style.width = `${window.innerWidth * 0.99}px`;
   document.getElementById("chart").style.height = `${
@@ -4620,17 +4922,14 @@ Want an example? Click demo!`
     .attr("width", "100%")
     .attr("height", "100%");
 
-  window.changeState = () => {
-    const state = getDefensiveFormation(
-      svg.node().getBoundingClientRect().width,
-      svg.node().getBoundingClientRect().height
-    );
-    const newState = canoePoloWhiteboard().boatState(state);
-    svg.call(newState);
-  };
   const whiteboard = canoePoloWhiteboard();
 
   svg.call(whiteboard);
+
+  if (window.ball) {
+    const ball = Ball();
+    svg.call(ball);
+  }
 
 })();
 //# sourceMappingURL=bundle.js.map

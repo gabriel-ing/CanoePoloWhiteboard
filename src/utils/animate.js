@@ -1,33 +1,45 @@
 import { canoePoloWhiteboard } from "../canoePoloWhiteboard";
-import { getDemoStates } from "./getDemoStates";
+import { getDemoStates, getDemoBallStates } from "./getDemoStates";
+import { Ball } from "../ball";
 export const saveState = () => {
   const svg = d3.select("#whiteboard-svg");
   const arr = svg.selectAll(".nodes").data();
   const newArr = structuredClone(arr);
-  //   console.log(arr[0]);
+  if (window.ball) {
+    const ballState = structuredClone(svg.selectAll(".ball").data()[0]);
+    window.ballStates.push(ballState);
+  }
+
   window.states.push(newArr);
   console.log("state-saved");
   document.getElementById("state-count").innerHTML = window.states.length;
 };
 
 export const reanimateStates = async (demo = false) => {
-  //   console.log(window.states);
   const duration = document.getElementById("duration").value * 1000;
   console.log("here");
   const svg = d3.select("#whiteboard-svg");
-  let states = demo? getDemoStates() : window.states
-    
+  let states = demo ? getDemoStates() : window.states;
+
+  let ballStates = demo ? getDemoBallStates() : window.ballStates;
   for (let i = 0; i < states.length; i++) {
-    console.log(states[i]);
+    // console.log(states[i]);
 
     const newWhiteboard = canoePoloWhiteboard()
       .boatState(states[i])
       .transitionDuration(i === 0 ? 500 : duration);
 
     svg.call(newWhiteboard);
+    if (window.ball) {
+      const newBall = Ball()
+        .ballState(ballStates[i])
+        .transitionDuration(i === 0 ? 500 : duration);
+      svg.call(newBall);
+    }
     let delayres = await delay(i === 0 ? 500 : duration);
   }
   console.log(states);
+  console.log(ballStates);
 };
 const delay = (delayInms) => {
   return new Promise((resolve) => setTimeout(resolve, delayInms));
@@ -49,5 +61,6 @@ Want an example? Click demo!`
 
 export const clearAnimation = () => {
   window.states = [];
+  window.ballStates = [];
   document.getElementById("state-count").innerHTML = window.states.length;
 };
