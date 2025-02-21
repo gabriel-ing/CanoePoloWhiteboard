@@ -69,6 +69,7 @@ export const resetScreen = (id, resetBoats) => {
     );
   } else {
     boatState = svg.selectAll(".nodes").data();
+    ballState = svg.selectAll(".ball").data()[0];
   }
   // let boatState = svg.selectAll(".nodes").data()
   console.log(svg.node().getBoundingClientRect().width);

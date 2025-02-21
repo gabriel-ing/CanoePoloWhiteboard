@@ -45,7 +45,7 @@
       .flex-container {
         display: flex;
       }
-      #animation-panel {
+      .animation-panel {
         border: 1px dashed black;
         background-color: #f3ecf9;
         /* height: 80%; */
@@ -53,10 +53,13 @@
         padding: 10px;
         line-height: 1em;
         margin: 5px;
-        display: flex;
+        /* display: flex; */
         position: absolute;
         bottom: 0;
         right: 10px;
+        max-width: 80%;
+        justify-content: center;
+        text-align: center;
       }
       #options-panel {
         border: 1px dashed black;
@@ -73,6 +76,14 @@
       }
       .animation-button {
         margin: 0px 5px;
+        flex-shrink: 1;
+        flex-grow: 1;
+        /* height: 50%; */
+        /* width: 10%; */
+        border: 1px solid black;
+        border-radius: 5px;
+        font-size: 12px;
+        padding: 2px;
       }
       #button-panel {
         position: absolute;
@@ -83,6 +94,27 @@
       .button-panel-icon {
         transform: scale(2);
         margin: 0px 15px;
+      }
+      .animation-options {
+        display: flex;
+        gap: 15px;
+        font-size: 12px;
+      }
+      #animation-title {
+        line-height: 1em;
+        margin: 2px;
+        font-size: 20px;
+      }
+      .main-buttons {
+        display: flex;
+        flex-direction: column;
+        margin: 2px;
+        justify-content: space-between;
+      }
+      .speed-label {
+        display: flex;
+        flex-direction: column;
+        
       }
     </style>
   </head>
@@ -106,53 +138,61 @@
           ></i>
           <!-- <i class="fa-solid fa-xmark button-panel-icon" ></i> -->
         </div>
-        <div id="animation-panel">
-          Animate
-          <button onclick="saveState()" class="animation-button">
-              Save State
-            </button>
-            State Count:
-            <div id="state-count">0</div>
+        <div class="animation-panel">
+          <h5 id="animation-title">Animation Control</h5>
+          <div class="animation-options">
             <button onclick="reanimateStates(false)" class="animation-button">
-              Animate
+              Play Animation
             </button>
-          <button onclick="clearAnimation()" class="animation-button">
-            Clear
-          </button>
-          <label for="duration">Time per state (seconds)</label>
-          <select id="duration" class="animation-button">
-            <option>0.5</option>
-            <option selected>1</option>
-            <option>1.5</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-          </select>
-          <button onclick="animationInstructions()">?</button>
-          <button onclick= "reanimateStates(true)" class="animation-button">Demo</button>
-        </div>
-        <div id="options-panel">
-            <input type="checkbox" id="ball-checkbox" checked> Ball</input> 
-          <!-- <label for="orange-boats" class="animation-button"
-            >Orange Boats:</label
-          >
-          <select id="orange-boats">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option selected>5</option>
-          </select>
-          <label for="green-boats" class="animation-button">Green Boats:</label>
-          <select id="green-boats">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option selected>5</option>
-          </select> -->
+            <div class="main-buttons">
+              <button onclick="saveState()" class="animation-button">
+                Save Position
+              </button>
+              <button onclick="clearAnimation()" class="animation-button">
+                Clear Positions
+              </button>
+            </div>
+            <div class="speed-label">
+              Position count:
+              <div id="state-count">0</div>
+            </div>
+            <div class="speed-label">
+              <label for="duration">Animation Speed</label>
+              <select id="duration" class="animation-button">
+                <option>0.25x</option>
+                <option>0.5x</option>
+                <option>0.75x</option>
+                <option selected>1x</option>
+                <option>2x</option>
+                <option>4x</option>
+              </select>
+            </div>
+            <button onclick="animationInstructions()">?</button>
+            <button onclick="loadPositions(true)" class="animation-button">
+              Load Demo
+            </button>
+            <div id="save-load-panel">
+              <button onclick="savePositions()" class="animation-button">
+                Save Positions
+              </button>
+              <div>
+                <label for="animation-file-input" class="animation-button"
+                  >Load Positions File</label
+                >
+                <input
+                  type="file"
+                  id="animation-file-input"
+                  accept=".json"
+                  style="display: none"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+    <div id="options-panel">
+      <label> <input type="checkbox" id="ball-checkbox" checked /> Ball </label>
     </div>
     <!-- <div id="header">
       <button onclick="displayFullScreen('chart')">Display Full Screen</button

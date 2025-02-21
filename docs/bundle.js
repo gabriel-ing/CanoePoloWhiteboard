@@ -3586,6 +3586,7 @@
 
             const cockpits = g
               .append("circle")
+              .attr("class", "cockpits")
               .attr("cx", 0)
               .attr("cy", 0)
               .attr("r", boatWidth / 2)
@@ -3625,7 +3626,16 @@
                   ? `translate(${d.x},${d.y}) rotate(${d.r})`
                   : `translate(${d.x},${d.y}) rotate(${d.r0})`
               );
-            update.selectAll(".boat").attr("fill", (d) => d.color);
+            update
+              .selectAll(".boat")
+              .attr("fill", (d) => d.color)
+              .attr("d", generateBoatPath(0, 0, boatWidth, boatHeight));
+            update.selectAll(".cockpits").attr("r", boatWidth / 2);
+
+            update
+              .selectAll(".rotation-handles")
+              .attr("cy", boatHeight / 2 + boatWidth / 2)
+              .attr("r", boatWidth / 8);
           }
         );
 
@@ -3691,9 +3701,10 @@
               .ease(d3.easeLinear)
               .duration(transitionDuration)
               .attr("transform", (d) => {
-              //   console.log(d);
+                //   console.log(d);
                 return `translate(${d.x},  ${d.y})`;
               });
+            update.selectAll(".ball").attr("r", radius);
           }
         );
     };
@@ -3773,6 +3784,7 @@
       );
     } else {
       boatState = svg.selectAll(".nodes").data();
+      ballState = svg.selectAll(".ball").data()[0];
     }
     // let boatState = svg.selectAll(".nodes").data()
     console.log(svg.node().getBoundingClientRect().width);
@@ -4813,8 +4825,17 @@
     document.getElementById("state-count").innerHTML = window.states.length;
   };
 
+  const speedConversion = {
+    "0.25x": 4,
+    "0.5x": 2,
+    0.75: 1.5,
+    "1x": 1,
+    "2x": 0.5,
+    "4x": 0.25,
+  };
   const reanimateStates = async (demo = false) => {
-    const duration = document.getElementById("duration").value * 1000;
+    const duration =
+      speedConversion[document.getElementById("duration").value] * 1000;
     console.log("here");
     const svg = d3.select("#whiteboard-svg");
     let states = demo ? getDemoStates() : window.states;
@@ -4853,7 +4874,7 @@
      Step 4: Choose the duration of the animation between each state (note total duration = time per state X number of states)
      Step 5: Click 'Animate' and the screen will animate the pre-defined states
      
-Want an example? Click demo!`
+Want an example? Click to load the demo!`
     );
   };
 
@@ -4863,7 +4884,124 @@ Want an example? Click demo!`
     document.getElementById("state-count").innerHTML = window.states.length;
   };
 
+  const savePositions = () => {
+    const boatStates = window.states;
+    const ballStates = window.ballStates;
+    const svg = d3.select("#whiteboard-svg");
+    const width = svg.node().getBoundingClientRect().width;
+    const height = svg.node().getBoundingClientRect().height;
+    console.log(ballStates);
+    const obj = {
+      boatStates: boatStates,
+      ballStates: ballStates,
+      width: width,
+      height: height,
+    };
+    const json = JSON.stringify(obj);
+    const positionsBlob = new Blob([json], { type: "application/json" });
+
+    const fileURL = URL.createObjectURL(positionsBlob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = fileURL;
+    downloadLink.download = `animation-positions.json`;
+    document.body.appendChild(downloadLink);
+
+    downloadLink.click();
+  };
+  const loadPositions = async (demo = false) => {
+    console.log(document.getElementById("animation-file-input").value);
+
+    if (demo) {
+      const positions = await d3.json("demo.json");
+      console.log(positions);
+      const scaledPositions = scaleData(positions);
+      window.states = scaledPositions.boatStates;
+      window.ballStates = scaledPositions.ballStates;
+      document.getElementById("state-count").innerHTML = window.states.length;
+      return;
+    }
+    let file = document.getElementById("animation-file-input").files[0];
+    if (!file) {
+      alert("No file selected");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async function (event) {
+      console.log(event);
+      try {
+        const positions = JSON.parse(event.target.result); // Parse file content as JSON
+
+        const scaledPositions = scaleData(positions);
+        window.states = scaledPositions.boatStates;
+        window.ballStates = scaledPositions.ballStates;
+        document.getElementById("state-count").innerHTML = window.states.length;
+        console.log(window.states, window.ballStates);
+      } catch (error) {
+        alert("Error - failed to read file");
+        console.error(error);
+      }
+    };
+
+    reader.readAsText(file); // Read file as text
+  };
+
+  const scaleData = (data) => {
+    const svg = d3.select("#whiteboard-svg");
+    const width = svg.node().getBoundingClientRect().width;
+    const height = svg.node().getBoundingClientRect().height;
+
+    const dataWidth = data.width;
+    const dataheight = data.height;
+
+    const scaledBallStates = data.ballStates.map((d) => {
+      d.x = (d.x * width) / dataWidth;
+      d.y = (d.y * height) / dataheight;
+      return d;
+    });
+
+    const scaledBoatStates = data.boatStates.map((d) =>
+      d.map((v) => {
+        v.x = (v.x * width) / dataWidth;
+        v.y = (v.y * height) / dataheight;
+        return v;
+      })
+    );
+
+    return { boatStates: scaledBoatStates, ballStates: scaledBallStates };
+  };
+
+  // export const getDemoStates = () => {
+  //   const svg = d3.select("#whiteboard-svg");
+  //   const width = svg.node().getBoundingClientRect().width;
+  //   const height = svg.node().getBoundingClientRect().height;
+
+  //   const demoStatesCopy = structuredClone(demoStates);
+  //   const scaledStates = demoStatesCopy.map((d) =>
+  //     d.map((v) => {
+  //       v.x = (v.x * width) / demoWidth;
+  //       v.y = (v.y * height) / demoHeight;
+  //       return v;
+  //     })
+  //   );
+
+  //   return scaledStates;
+  // };
+  // export const getDemoBallStates = () => {
+  //   const svg = d3.select("#whiteboard-svg");
+  //   const width = svg.node().getBoundingClientRect().width;
+  //   const height = svg.node().getBoundingClientRect().height;
+  //   const demoBallStatesCopy = structuredClone(demoBallStates);
+
+  //   const scaledDemoBallStates = demoBallStatesCopy.map((d) => {
+  //     d.x = (d.x * width) / demoWidth;
+  //     d.y = (d.y * height) / demoHeight;
+  //     return d;
+  //   });
+  //   return scaledDemoBallStates;
+  // };
+
   window.ball = document.getElementById("ball-checkbox").checked;
+
   document.getElementById("ball-checkbox").addEventListener("change", (event) => {
     window.ball = event.target.checked;
     if (window.ball) {
@@ -4872,6 +5010,10 @@ Want an example? Click demo!`
     } else {
       svg.selectAll(".ball").remove();
     }
+  });
+
+  document.getElementById("animation-file-input").addEventListener("change", event=>{
+      loadPositions(false);
   });
   //Button functions:
   window.resetScreen = resetScreen;
@@ -4886,7 +5028,8 @@ Want an example? Click demo!`
   window.reanimateStates = reanimateStates;
   window.clearAnimation = clearAnimation;
   window.animationInstructions = animationInstructions;
-
+  window.savePositions = savePositions;
+  window.loadPositions = loadPositions;
   // document.getElementById("orange-boats").addEventListener("change", (event) => {
   //   const team = 1;
   //   console.log(event.target.value);

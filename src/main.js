@@ -7,12 +7,15 @@ import { getDefensiveFormation } from "./initialBoatState.js";
 import {
   animationInstructions,
   clearAnimation,
+  loadPositions,
   reanimateStates,
+  savePositions,
   saveState,
 } from "./utils/animate.js";
 import { Ball } from "./ball.js";
 
 window.ball = document.getElementById("ball-checkbox").checked;
+
 document.getElementById("ball-checkbox").addEventListener("change", (event) => {
   window.ball = event.target.checked;
   if (window.ball) {
@@ -22,6 +25,10 @@ document.getElementById("ball-checkbox").addEventListener("change", (event) => {
     svg.selectAll(".ball").remove();
   }
 });
+
+document.getElementById("animation-file-input").addEventListener("change", event=>{
+    loadPositions(false)
+})
 //Button functions:
 window.resetScreen = resetScreen;
 window.mobile = checkMobile();
@@ -35,7 +42,8 @@ window.saveState = saveState;
 window.reanimateStates = reanimateStates;
 window.clearAnimation = clearAnimation;
 window.animationInstructions = animationInstructions;
-
+window.savePositions = savePositions;
+window.loadPositions = loadPositions;
 // document.getElementById("orange-boats").addEventListener("change", (event) => {
 //   const team = 1;
 //   console.log(event.target.value);

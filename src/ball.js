@@ -44,9 +44,10 @@ export const Ball = () => {
             .ease(d3.easeLinear)
             .duration(transitionDuration)
             .attr("transform", (d) => {
-            //   console.log(d);
+              //   console.log(d);
               return `translate(${d.x},  ${d.y})`;
             });
+          update.selectAll(".ball").attr("r", radius);
         }
       );
   };

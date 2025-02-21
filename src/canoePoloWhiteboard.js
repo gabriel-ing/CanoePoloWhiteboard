@@ -107,6 +107,7 @@ export const canoePoloWhiteboard = () => {
 
           const cockpits = g
             .append("circle")
+            .attr("class", "cockpits")
             .attr("cx", 0)
             .attr("cy", 0)
             .attr("r", boatWidth / 2)
@@ -146,7 +147,16 @@ export const canoePoloWhiteboard = () => {
                 ? `translate(${d.x},${d.y}) rotate(${d.r})`
                 : `translate(${d.x},${d.y}) rotate(${d.r0})`
             );
-          update.selectAll(".boat").attr("fill", (d) => d.color);
+          update
+            .selectAll(".boat")
+            .attr("fill", (d) => d.color)
+            .attr("d", generateBoatPath(0, 0, boatWidth, boatHeight));
+          update.selectAll(".cockpits").attr("r", boatWidth / 2);
+
+          update
+            .selectAll(".rotation-handles")
+            .attr("cy", boatHeight / 2 + boatWidth / 2)
+            .attr("r", boatWidth / 8);
         }
       );
 
