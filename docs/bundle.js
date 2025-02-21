@@ -3760,10 +3760,10 @@
     // console.log("reset");
 
     const svg = d3.select("#" + id);
-    document.getElementById("chart").style.width = `${
+    document.getElementById("chart-container").style.width = `${
     window.innerWidth * 0.99
   }px`;
-    document.getElementById("chart").style.height = `${
+    document.getElementById("chart-container").style.height = `${
     window.innerHeight * 0.99 - 50
   }px`;
 
@@ -5000,21 +5000,23 @@ Want an example? Click to load the demo!`
   //   return scaledDemoBallStates;
   // };
 
-  window.ball = document.getElementById("ball-checkbox").checked;
+  window.ball = true; //document.getElementById("ball-checkbox").checked;
 
-  document.getElementById("ball-checkbox").addEventListener("change", (event) => {
-    window.ball = event.target.checked;
-    if (window.ball) {
-      const ball = Ball();
-      svg.call(ball);
-    } else {
-      svg.selectAll(".ball").remove();
-    }
-  });
+  // document.getElementById("ball-checkbox").addEventListener("change", (event) => {
+  //   window.ball = event.target.checked;
+  //   if (window.ball) {
+  //     const ball = Ball();
+  //     svg.call(ball);
+  //   } else {
+  //     svg.selectAll(".ball").remove();
+  //   }
+  // });
 
-  document.getElementById("animation-file-input").addEventListener("change", event=>{
+  document
+    .getElementById("animation-file-input")
+    .addEventListener("change", (event) => {
       loadPositions(false);
-  });
+    });
   //Button functions:
   window.resetScreen = resetScreen;
   window.mobile = checkMobile();
@@ -5050,14 +5052,14 @@ Want an example? Click to load the demo!`
       `It looks like your screen is in portrait, this app will work better in landscape so I recommend rotating your screen and reloading the page!`
     );
 
-  const div = select("#chart");
-  document.getElementById("chart").style.width = `${window.innerWidth * 0.99}px`;
-  document.getElementById("chart").style.height = `${
+  document.getElementById("chart-container").style.width = `${window.innerWidth * 0.99}px`;
+  document.getElementById("chart-container").style.height = `${
   window.innerHeight * 0.99 - 50
 }px`;
 
   window.displayFullScreen = displayFullScreen;
 
+  const div = select("#chart");
   const svg = div
     .append("svg")
     .attr("id", "whiteboard-svg")

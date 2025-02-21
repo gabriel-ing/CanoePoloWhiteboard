@@ -14,21 +14,23 @@ import {
 } from "./utils/animate.js";
 import { Ball } from "./ball.js";
 
-window.ball = document.getElementById("ball-checkbox").checked;
+window.ball = true; //document.getElementById("ball-checkbox").checked;
 
-document.getElementById("ball-checkbox").addEventListener("change", (event) => {
-  window.ball = event.target.checked;
-  if (window.ball) {
-    const ball = Ball();
-    svg.call(ball);
-  } else {
-    svg.selectAll(".ball").remove();
-  }
-});
+// document.getElementById("ball-checkbox").addEventListener("change", (event) => {
+//   window.ball = event.target.checked;
+//   if (window.ball) {
+//     const ball = Ball();
+//     svg.call(ball);
+//   } else {
+//     svg.selectAll(".ball").remove();
+//   }
+// });
 
-document.getElementById("animation-file-input").addEventListener("change", event=>{
-    loadPositions(false)
-})
+document
+  .getElementById("animation-file-input")
+  .addEventListener("change", (event) => {
+    loadPositions(false);
+  });
 //Button functions:
 window.resetScreen = resetScreen;
 window.mobile = checkMobile();
@@ -64,14 +66,14 @@ if (windowHeight > windowWidth)
     `It looks like your screen is in portrait, this app will work better in landscape so I recommend rotating your screen and reloading the page!`
   );
 
-const div = d3.select("#chart");
-document.getElementById("chart").style.width = `${window.innerWidth * 0.99}px`;
-document.getElementById("chart").style.height = `${
+document.getElementById("chart-container").style.width = `${window.innerWidth * 0.99}px`;
+document.getElementById("chart-container").style.height = `${
   window.innerHeight * 0.99 - 50
 }px`;
 
 window.displayFullScreen = displayFullScreen;
 
+const div = d3.select("#chart");
 const svg = div
   .append("svg")
   .attr("id", "whiteboard-svg")

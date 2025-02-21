@@ -11,7 +11,7 @@ export const canoePoloWhiteboard = () => {
     //   console.log(screen.height);
 
     const width = svg.node().getBoundingClientRect().width;
-    const height = svg.node().getBoundingClientRect().height;
+    const height = svg.node().getBoundingClientRect().height
     // console.log(width, height)
     const smallAxis = d3.min([width, height]);
     svg.attr("viewBox", `0 0 ${width} ${height}`);

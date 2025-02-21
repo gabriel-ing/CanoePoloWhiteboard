@@ -45,10 +45,10 @@ export const resetScreen = (id, resetBoats) => {
   // console.log("reset");
 
   const svg = d3.select("#" + id);
-  document.getElementById("chart").style.width = `${
+  document.getElementById("chart-container").style.width = `${
     window.innerWidth * 0.99
   }px`;
-  document.getElementById("chart").style.height = `${
+  document.getElementById("chart-container").style.height = `${
     window.innerHeight * 0.99 - 50
   }px`;
 
