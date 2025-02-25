@@ -1,4 +1,4 @@
-import { getInitialBoatState } from "./initialBoatState";
+import { getInitialBoatState, getInitialBoatStateKickoff } from "./initialBoatState";
 import { generateBoatPath } from "./utils/generateBoatPath";
 import { handleDrag, handleRotation } from "./utils/handleDrag";
 import * as d3 from "d3";
@@ -11,7 +11,7 @@ export const canoePoloWhiteboard = () => {
     //   console.log(screen.height);
 
     const width = svg.node().getBoundingClientRect().width;
-    const height = svg.node().getBoundingClientRect().height
+    const height = svg.node().getBoundingClientRect().height;
     // console.log(width, height)
     const smallAxis = d3.min([width, height]);
     svg.attr("viewBox", `0 0 ${width} ${height}`);
@@ -22,7 +22,7 @@ export const canoePoloWhiteboard = () => {
     const goalWidth = width * 0.005;
 
     if (!boatState) {
-      boatState = getInitialBoatState(width, height);
+      boatState = initialStateFunction(width, height, boatHeight);
     }
 
     const playingArea = svg
@@ -74,7 +74,7 @@ export const canoePoloWhiteboard = () => {
 
     const nodes = svg
       .selectAll(".nodes")
-      .data(boatState)
+      .data(boatState, (d) => d.id)
       .join(
         (enter) => {
           const g = enter
@@ -83,7 +83,8 @@ export const canoePoloWhiteboard = () => {
             .attr(
               "transform",
               (d) => `translate(${d.x},${d.y}) rotate(${d.r0})`
-            );
+            )
+            .style("display", (d) => d.visible);
 
           const boats = g
             .selectAll(".boat")
@@ -146,7 +147,8 @@ export const canoePoloWhiteboard = () => {
               d.r
                 ? `translate(${d.x},${d.y}) rotate(${d.r})`
                 : `translate(${d.x},${d.y}) rotate(${d.r0})`
-            );
+            )
+            .style("display", (d) => d.visible);
           update
             .selectAll(".boat")
             .attr("fill", (d) => d.color)

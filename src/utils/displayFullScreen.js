@@ -41,10 +41,10 @@ export const exitFullscreen = () => {
   document.exitFullscreen();
 };
 
-export const resetScreen = (id, resetBoats) => {
+export const resetScreen = ( resetBoats) => {
   // console.log("reset");
 
-  const svg = d3.select("#" + id);
+  const svg = d3.select("#whiteboard-svg");
   document.getElementById("chart-container").style.width = `${
     window.innerWidth * 0.99
   }px`;
@@ -59,7 +59,7 @@ export const resetScreen = (id, resetBoats) => {
   let boatState;
   let ballState;
   if (resetBoats) {
-    boatState = getInitialBoatState(
+    boatState = window.resetState(
       svg.node().getBoundingClientRect().width,
       svg.node().getBoundingClientRect().height
     );

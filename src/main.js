@@ -3,7 +3,10 @@ import { checkMobile } from "./utils/checkMobile";
 import { saveChart, saveChartPng } from "./utils/saveChart.js";
 import { displayFullScreen, resetScreen } from "./utils/displayFullScreen";
 import { canoePoloWhiteboard } from "./canoePoloWhiteboard";
-import { getDefensiveFormation } from "./initialBoatState.js";
+import {
+  getInitialBoatStateKickoff,
+  initialStateDict,
+} from "./initialBoatState.js";
 import {
   animationInstructions,
   clearAnimation,
@@ -15,16 +18,11 @@ import {
 import { Ball } from "./ball.js";
 
 window.ball = true; //document.getElementById("ball-checkbox").checked;
-
-// document.getElementById("ball-checkbox").addEventListener("change", (event) => {
-//   window.ball = event.target.checked;
-//   if (window.ball) {
-//     const ball = Ball();
-//     svg.call(ball);
-//   } else {
-//     svg.selectAll(".ball").remove();
-//   }
-// });
+window.resetState = getInitialBoatStateKickoff;
+document.getElementById("ball-checkbox").addEventListener("change", (event) => {
+  window.ball = event.target.checked;
+  svg.selectAll(".ball").style("display", event.target.checked ? null : "none");
+});
 
 document
   .getElementById("animation-file-input")
@@ -66,7 +64,19 @@ if (windowHeight > windowWidth)
     `It looks like your screen is in portrait, this app will work better in landscape so I recommend rotating your screen and reloading the page!`
   );
 
-document.getElementById("chart-container").style.width = `${window.innerWidth * 0.99}px`;
+// alert(`Welcome!
+//   This is an online whiteboard for demonstrating and visualising Canoe Polo tactics.
+//   It works simply enough - the boats and ball can be dragged around the board. At the back of each boat there is a black circle which is a rotation handle - click and drag this to rotate the boat.
+
+//   Theres also a basic animation function - you can save sets of positions of the boat and balls with "save position"  and then "Play Animation" and it will smoothly move all the components between each position making a simple animation. You can also save or reload animations. If you would like to see an example animation click "load demo" followed by "Play animation"
+
+//   There are buttons to go full-screen, to save an image and to reset the boats in the top right hand corner.
+
+//   `);
+
+document.getElementById("chart-container").style.width = `${
+  window.innerWidth * 0.99
+}px`;
 document.getElementById("chart-container").style.height = `${
   window.innerHeight * 0.99 - 50
 }px`;
@@ -80,8 +90,10 @@ const svg = div
   .attr("preserveAspectRatio", "xMinYMin meet")
   .attr("width", "100%")
   .attr("height", "100%");
-
-const whiteboard = canoePoloWhiteboard();
+const width = svg.node().getBoundingClientRect().width;
+const height = svg.node().getBoundingClientRect().height;
+console.log(window.resetState(width, height))
+const whiteboard = canoePoloWhiteboard().boatState(window.resetState(width, height));
 
 svg.call(whiteboard);
 
@@ -89,3 +101,52 @@ if (window.ball) {
   const ball = Ball();
   svg.call(ball);
 }
+document.getElementById("nTeam1").addEventListener("change", (event) => {
+  const team = 1;
+  const maxId = +event.target.value;
+  const adjustedData = d3
+    .selectAll(".nodes")
+    .data()
+    .map((d) => {
+      if (d.id > maxId && d.team === team) {
+        d.visible = "none";
+      } else if (d.team === team) {
+        d.visible = null;
+      }
+      return d;
+    });
+
+  whiteboard.boatState(adjustedData);
+  svg.call(whiteboard);
+  // const filtered= data.filter(d=> d.id<=event.target.value)
+});
+document.getElementById("nTeam2").addEventListener("change", (event) => {
+  const team = 2;
+  const maxId = +event.target.value + 5;
+  // console.log(maxId);
+
+  const adjustedData = d3
+    .selectAll(".nodes")
+    .data()
+    .map((d) => {
+      if (d.id > maxId && d.team === team) {
+        d.visible = "none";
+      } else if (d.team === team) {
+        d.visible = null;
+      }
+      return d;
+    });
+  console.log(adjustedData);
+
+  whiteboard.boatState(adjustedData);
+  svg.call(whiteboard);
+  // d3.selectAll(".nodes")
+  //   .filter((d) => d.id <= maxId && d.team === team)
+  //   .style("display", null);
+  // const filtered= data.filter(d=> d.id<=event.target.value)
+});
+
+document.getElementById("reset-state").addEventListener("change", (event) => {
+  window.resetState = initialStateDict[event.target.value];
+  resetScreen(true)
+});

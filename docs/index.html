@@ -62,18 +62,19 @@
         text-align: center;
         max-height: 10vh;
         min-height: 5vh;
-        overflow:auto;
-
+        overflow: auto;
       }
       #options-panel {
         border: 1px dashed black;
         background-color: #ecf9f3;
-        /* height: 80%; */
+        max-height: 10vh;
         opacity: 0.8;
         padding: 10px;
         line-height: 1em;
         margin: 5px;
         display: flex;
+        flex-direction: column;
+        overflow:scroll;
         position: absolute;
         bottom: 0;
         left: 10px;
@@ -221,9 +222,34 @@
         </div>
       </div>
     </div>
-    <!-- <div id="options-panel">
+    <div id="options-panel">
       <label> <input type="checkbox" id="ball-checkbox" checked /> Ball </label>
-    </div> -->
+
+      <label for="nTeam1">Orange Boats</label>
+      <select id="nTeam1">
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option selected>5</option>
+      </select>
+      <label for="nTeam2">Green Boats</label>
+      <select id="nTeam2">
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option selected>5</option>
+      </select>
+      <label for="reset-state">Initial State</label>
+      <select id="reset-state">
+        <option selected>Kickoff</option>
+        <option>Even</option>
+        <option>Post Green Goal</option>
+        <option>Post Orange Goal</option>
+
+      </select>
+    </div>
     <!-- <div id="header">
       <button onclick="displayFullScreen('chart')">Display Full Screen</button
       ><button onclick="saveChart('whiteboard-svg')">Save SVG</button>
