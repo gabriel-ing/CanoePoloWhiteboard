@@ -41,10 +41,11 @@ export const exitFullscreen = () => {
   document.exitFullscreen();
 };
 
-export const resetScreen = ( resetBoats) => {
+export const resetScreen = (resetBoats) => {
   // console.log("reset");
 
   const svg = d3.select("#whiteboard-svg");
+  svg.selectAll("*").interrupt();
   document.getElementById("chart-container").style.width = `${
     window.innerWidth * 0.99
   }px`;
