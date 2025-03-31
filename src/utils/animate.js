@@ -162,7 +162,7 @@ const scaleData = (data) => {
 };
 
 export const open3D = () => {
-  () => {
+
     const boatStates = window.states;
     const ballStates = window.ballStates;
     const svg = d3.select("#whiteboard-svg");
@@ -181,7 +181,7 @@ export const open3D = () => {
     threeDLink.href = "https://gabriel-ing.github.io/CanoePolo3D/";
     document.body.appendChild(threeDLink);
     threeDLink.click();
-  }
+  
 };
 // export const getDemoStates = () => {
 //   const svg = d3.select("#whiteboard-svg");
