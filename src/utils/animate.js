@@ -161,6 +161,28 @@ const scaleData = (data) => {
   return { boatStates: scaledBoatStates, ballStates: scaledBallStates };
 };
 
+export const open3D = () => {
+  () => {
+    const boatStates = window.states;
+    const ballStates = window.ballStates;
+    const svg = d3.select("#whiteboard-svg");
+    const width = svg.node().getBoundingClientRect().width;
+    const height = svg.node().getBoundingClientRect().height;
+    console.log(ballStates);
+    const obj = {
+      boatStates: boatStates,
+      ballStates: ballStates,
+      width: width,
+      height: height,
+    };
+    sessionStorage.setItem("states", JSON.stringify(obj));
+    console.log(JSON.parse(sessionStorage.getItem("states")))
+    const threeDLink = document.createElement("a");
+    threeDLink.href = "https://gabriel-ing.github.io/CanoePolo3D/";
+    document.body.appendChild(threeDLink);
+    threeDLink.click();
+  }
+};
 // export const getDemoStates = () => {
 //   const svg = d3.select("#whiteboard-svg");
 //   const width = svg.node().getBoundingClientRect().width;

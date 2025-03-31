@@ -3343,6 +3343,7 @@
         x: width / 9,
         y: height / 2,
         r0: 90,
+        r:90,
         color: "#e6ceb2",
         id: 1,
         team: 1,
@@ -3352,6 +3353,7 @@
         x: (width * 2) / 9,
         y: height / 3,
         r0: 90,
+        r:90,
         color: "#e6ceb2",
         id: 2,
         team: 1,
@@ -3361,6 +3363,7 @@
         x: (width * 2) / 9,
         y: (height * 2) / 3,
         r0: 90,
+        r:90,
         color: "#e6ceb2",
         id: 3,
         team: 1,
@@ -3370,6 +3373,7 @@
         x: (width * 3) / 9,
         y: height / 6,
         r0: 90,
+        r:90,
         color: "#e6ceb2",
         id: 4,
         team: 1,
@@ -3379,6 +3383,7 @@
         x: (width * 3) / 9,
         y: (height * 5) / 6,
         r0: 90,
+        r:90,
         color: "#e6ceb2",
         id: 5,
         team: 1,
@@ -3390,6 +3395,7 @@
         x: width - width / 9,
         y: height / 2,
         r0: -90,
+        r:-90,
         color: "#b2e6ce",
         id: 6,
         team: 2,
@@ -3399,6 +3405,7 @@
         x: width - (width * 2) / 9,
         y: height / 3,
         r0: -90,
+        r:-90,
         color: "#b2e6ce",
         id: 7,
         team: 2,
@@ -3408,6 +3415,7 @@
         x: width - (width * 2) / 9,
         y: (height * 2) / 3,
         r0: -90,
+        r:-90,
         color: "#b2e6ce",
         id: 8,
         team: 2,
@@ -3417,6 +3425,7 @@
         x: width - (width * 3) / 9,
         y: height / 6,
         r0: -90,
+        r:-90,
         color: "#b2e6ce",
         id: 9,
         team: 2,
@@ -3426,6 +3435,7 @@
         x: width - (width * 3) / 9,
         y: (height * 5) / 6,
         r0: -90,
+        r:-90,
         color: "#b2e6ce",
         id: 10,
         team: 2,
@@ -3453,6 +3463,7 @@
         x: 0 + boatHeight * 0.6,
         y: height / 2,
         r0: 90,
+        r: 90,
         color: "#e6ceb2",
         id: 1,
         team: 1,
@@ -3462,6 +3473,7 @@
         x: 0,
         y: height / 3,
         r0: 90,
+        r: 90,
         color: "#e6ceb2",
         id: 2,
         team: 1,
@@ -3471,6 +3483,7 @@
         x: 0,
         y: (height * 2) / 3,
         r0: 90,
+        r: 90,
         color: "#e6ceb2",
         id: 3,
         team: 1,
@@ -3480,6 +3493,7 @@
         x: 0,
         y: height / 6,
         r0: 90,
+        r: 90,
         color: "#e6ceb2",
         id: 4,
         team: 1,
@@ -3489,6 +3503,7 @@
         x: 0,
         y: (height * 5) / 6,
         r0: 90,
+        r: 90,
         color: "#e6ceb2",
         id: 5,
         team: 1,
@@ -3500,6 +3515,7 @@
         x: width - (min([width, height]) / 4) * 0.6,
         y: height / 2,
         r0: -90,
+        r: -90,
         color: "#b2e6ce",
         id: 6,
         team: 2,
@@ -3509,6 +3525,7 @@
         x: width,
         y: height / 3,
         r0: -90,
+        r: -90,
         color: "#b2e6ce",
         id: 7,
         team: 2,
@@ -3518,6 +3535,7 @@
         x: width,
         y: (height * 2) / 3,
         r0: -90,
+        r: -90,
         color: "#b2e6ce",
         id: 8,
         team: 2,
@@ -3527,6 +3545,7 @@
         x: width,
         y: height / 6,
         r0: -90,
+        r: -90,
         color: "#b2e6ce",
         id: 9,
         team: 2,
@@ -3536,6 +3555,7 @@
         x: width,
         y: (height * 5) / 6,
         r0: -90,
+        r: -90,
         color: "#b2e6ce",
         id: 10,
         team: 2,
@@ -3555,6 +3575,7 @@
         x: width / 9,
         y: height / 2,
         r0: 90,
+        r: 90,
         color: "#e6ceb2",
         id: 1,
         visible: null,
@@ -3563,6 +3584,7 @@
         x: (width * 2) / 9,
         y: (height * 2) / 5,
         r0: 135,
+        r: 135,
         color: "#e6ceb2",
         id: 2,
         visible: null,
@@ -3571,6 +3593,7 @@
         x: (width * 2) / 9,
         y: (height * 3) / 5,
         r0: 45,
+        r: 45,
         color: "#e6ceb2",
         id: 3,
         visible: null,
@@ -3579,6 +3602,7 @@
         x: (width * 3) / 9,
         y: (height * 3) / 10,
         r0: 120,
+        r: 120,
         color: "#e6ceb2",
         id: 4,
         visible: null,
@@ -3587,6 +3611,7 @@
         x: (width * 3) / 9,
         y: (height * 7) / 10,
         r0: 70,
+        r: 70,
         color: "#e6ceb2",
         id: 5,
         visible: null,
@@ -3596,6 +3621,7 @@
         x: width - width / 9,
         y: height / 2,
         r0: -90,
+        r: -90,
         color: "#b2e6ce",
         id: 6,
         visible: null,
@@ -3604,6 +3630,7 @@
         x: width - (width * 4) / 9,
         y: height / 3,
         r0: -90,
+        r: -90,
         color: "#b2e6ce",
         id: 7,
         visible: null,
@@ -3612,6 +3639,7 @@
         x: width / 2 + 0.3 * boatHeight,
         y: height / 2,
         r0: -90,
+        r: -90,
         color: "#b2e6ce",
         id: 8,
         visible: null,
@@ -3620,6 +3648,7 @@
         x: width / 2 + boatHeight,
         y: height / 6,
         r0: -90,
+        r: -90,
         color: "#b2e6ce",
         id: 9,
         visible: null,
@@ -3628,6 +3657,7 @@
         x: width / 2 + boatHeight,
         y: (height * 4.5) / 6,
         r0: -90,
+        r: -90,
         color: "#b2e6ce",
         id: 10,
         visible: null,
@@ -3642,6 +3672,7 @@
         x: width / 2-0.1*boatHeight,
         y: height / 2,
         r0: 90,
+        r: 90,
         color: "#e6ceb2",
         id: 1,
         visible: null,
@@ -3650,6 +3681,7 @@
         x: (width * 2) / 9,
         y: (height * 2) / 5,
         r0: 100,
+        r: 100,
         color: "#e6ceb2",
         id: 2,
         visible: null,
@@ -3658,6 +3690,7 @@
         x: (width * 3) / 9,
         y: (height * 3) / 5,
         r0: 80,
+        r: 80,
         color: "#e6ceb2",
         id: 3,
         visible: null,
@@ -3666,6 +3699,7 @@
         x: (width * 4) / 9,
         y: (height * 3) / 10,
         r0: 85,
+        r: 85,
         color: "#e6ceb2",
         id: 4,
         visible: null,
@@ -3674,6 +3708,7 @@
         x: (width * 4) / 9,
         y: (height * 7) / 10,
         r0: 95,
+        r: 95,
         color: "#e6ceb2",
         id: 5,
         visible: null,
@@ -3683,6 +3718,7 @@
         x: width - 0.2*boatHeight,
         y: height / 2,
         r0: -90,
+        r: -90,
         color: "#b2e6ce",
         id: 6,
         visible: null,
@@ -3691,6 +3727,7 @@
         x: width/2 + boatHeight*1.4,
         y: height / 3,
         r0: -110,
+        r: 110,
         color: "#b2e6ce",
         id: 7,
         visible: null,
@@ -3699,6 +3736,7 @@
         x: width / 2 + 1.4*boatHeight,
         y: height / 2+0.8*boatHeight,
         r0: -60,
+        r: -60,
         color: "#b2e6ce",
         id: 8,
         visible: null,
@@ -3707,6 +3745,7 @@
         x: width - boatHeight,
         y: height *2.5/ 6,
         r0: -140,
+        r: -140,
         color: "#b2e6ce",
         id: 9,
         visible: null,
@@ -3715,6 +3754,7 @@
         x: width - boatHeight,
         y: (height * 3.5) / 6,
         r0: -50,
+        r: -50,
         color: "#b2e6ce",
         id: 10,
         visible: null,
@@ -4064,10 +4104,11 @@
     document.exitFullscreen();
   };
 
-  const resetScreen = ( resetBoats) => {
+  const resetScreen = (resetBoats) => {
     // console.log("reset");
 
     const svg = d3.select("#whiteboard-svg");
+    svg.selectAll("*").interrupt();
     document.getElementById("chart-container").style.width = `${
     window.innerWidth * 0.99
   }px`;
@@ -5278,6 +5319,8 @@ Want an example? Click to load the demo!`
     return { boatStates: scaledBoatStates, ballStates: scaledBallStates };
   };
 
+  const open3D = () => {
+  };
   // export const getDemoStates = () => {
   //   const svg = d3.select("#whiteboard-svg");
   //   const width = svg.node().getBoundingClientRect().width;
@@ -5308,6 +5351,7 @@ Want an example? Click to load the demo!`
   //   return scaledDemoBallStates;
   // };
 
+  window.open3D = open3D;
   window.ball = true; //document.getElementById("ball-checkbox").checked;
   window.resetState = getInitialBoatStateKickoff;
   document.getElementById("ball-checkbox").addEventListener("change", (event) => {
@@ -5384,7 +5428,9 @@ Want an example? Click to load the demo!`
   const width = svg.node().getBoundingClientRect().width;
   const height = svg.node().getBoundingClientRect().height;
   console.log(window.resetState(width, height));
-  const whiteboard = canoePoloWhiteboard().boatState(window.resetState(width, height));
+  const whiteboard = canoePoloWhiteboard().boatState(
+    window.resetState(width, height)
+  );
 
   svg.call(whiteboard);
 

@@ -14,9 +14,10 @@ import {
   reanimateStates,
   savePositions,
   saveState,
+  open3D
 } from "./utils/animate.js";
 import { Ball } from "./ball.js";
-
+window.open3D = open3D;
 window.ball = true; //document.getElementById("ball-checkbox").checked;
 window.resetState = getInitialBoatStateKickoff;
 document.getElementById("ball-checkbox").addEventListener("change", (event) => {
@@ -92,8 +93,10 @@ const svg = div
   .attr("height", "100%");
 const width = svg.node().getBoundingClientRect().width;
 const height = svg.node().getBoundingClientRect().height;
-console.log(window.resetState(width, height))
-const whiteboard = canoePoloWhiteboard().boatState(window.resetState(width, height));
+console.log(window.resetState(width, height));
+const whiteboard = canoePoloWhiteboard().boatState(
+  window.resetState(width, height)
+);
 
 svg.call(whiteboard);
 
@@ -148,5 +151,5 @@ document.getElementById("nTeam2").addEventListener("change", (event) => {
 
 document.getElementById("reset-state").addEventListener("change", (event) => {
   window.resetState = initialStateDict[event.target.value];
-  resetScreen(true)
+  resetScreen(true);
 });
