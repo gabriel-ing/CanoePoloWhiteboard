@@ -11,10 +11,11 @@ import {
   animationInstructions,
   clearAnimation,
   loadPositions,
+  goToPosition,
   reanimateStates,
   savePositions,
   saveState,
-  open3D
+  open3D,
 } from "./utils/animate.js";
 import { Ball } from "./ball.js";
 window.open3D = open3D;
@@ -35,8 +36,8 @@ window.resetScreen = resetScreen;
 window.mobile = checkMobile();
 window.saveChart = saveChart;
 window.savePng = saveChartPng;
-
 // Animation functions:
+window.currentPosition = 0;
 window.states = [];
 window.ballStates = [];
 window.saveState = saveState;
@@ -75,6 +76,14 @@ if (windowHeight > windowWidth)
 
 //   `);
 
+document
+  .getElementById("position-slider")
+  .addEventListener("change", (event) => {
+    window.currentPosition = event.target.value;
+    console.log(window.currentPosition);
+    goToPosition(event.target.value);
+  });
+
 document.getElementById("chart-container").style.width = `${
   window.innerWidth * 0.99
 }px`;
@@ -93,7 +102,7 @@ const svg = div
   .attr("height", "100%");
 const width = svg.node().getBoundingClientRect().width;
 const height = svg.node().getBoundingClientRect().height;
-console.log(window.resetState(width, height));
+// console.log(window.resetState(width, height));
 const whiteboard = canoePoloWhiteboard().boatState(
   window.resetState(width, height)
 );
@@ -153,3 +162,8 @@ document.getElementById("reset-state").addEventListener("change", (event) => {
   window.resetState = initialStateDict[event.target.value];
   resetScreen(true);
 });
+
+if (sessionStorage.getItem("states")) {
+  console.log(sessionStorage.getItem("states"))
+  loadPositions(false, true);
+}

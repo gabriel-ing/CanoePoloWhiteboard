@@ -57,7 +57,7 @@
         position: absolute;
         bottom: 0;
         right: 10px;
-        max-width: 80%;
+        max-width: 90%;
         justify-content: center;
         text-align: center;
         max-height: 10vh;
@@ -134,6 +134,10 @@
         display: flex;
         flex-shrink: 1;
       }
+      .animation-button:hover{
+        transform: scale(1.1);
+        cursor:pointer;
+      }
     </style>
   </head>
   <body>
@@ -167,15 +171,20 @@
             </div>
             <div class="main-buttons flex-column">
               <button onclick="saveState()" class="animation-button">
-                Save Position
+                Add Position
+              </button>
+              <button onclick="saveState(rewrite=true)" class="animation-button">
+                Rewrite Position
               </button>
               <button onclick="clearAnimation()" class="animation-button">
                 Clear Positions
               </button>
             </div>
             <div class="speed-label flex-column">
-              Position count:
-              <div id="state-count">0</div>
+              Current Position:
+              <div id="current-position">0</div>
+              <input type="range" step="1" max="10" min="0" value="0" id="position-slider" disabled></input>
+
             </div>
             <div class="speed-label flex-column">
               <label for="duration">Animation Speed</label>
@@ -204,13 +213,14 @@
 
             <div id="save-load-panel flex-column">
               <button onclick="savePositions()" class="animation-button">
-                Save Positions
+                Save Positions File
               </button>
               <div>
                 <label for="animation-file-input" class="animation-button"
                   >Load Positions File</label
                 >
                 <input
+                class="animation-button"
                   type="file"
                   id="animation-file-input"
                   accept=".json"

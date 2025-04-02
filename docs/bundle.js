@@ -5160,7 +5160,7 @@
     return scaledDemoBallStates;
   };
 
-  const saveState = () => {
+  const saveState = (rewrite = false) => {
     const svg = d3.select("#whiteboard-svg");
     const arr = svg.selectAll(".nodes").data();
     const newArr = structuredClone(arr);
@@ -5168,12 +5168,31 @@
       const ballState = structuredClone(svg.selectAll(".ball").data()[0]);
       window.ballStates.push(ballState);
     }
-
-    window.states.push(newArr);
-    console.log("state-saved");
-    document.getElementById("state-count").innerHTML = window.states.length;
+    if (!rewrite) {
+      window.states.push(newArr);
+      console.log("state-saved");
+      
+      setPositionSlider();
+    } else {
+      window.states[window.currentState] = newArr;
+    }
   };
 
+  function setPositionSlider(n = null) {
+    const positionSlider = document.getElementById("position-slider");
+    positionSlider.disabled = false;
+    positionSlider.max = window.states.length - 1;
+
+    if (!n) {
+      positionSlider.value = window.states.length - 1;
+      document.getElementById("current-position").innerHTML = window.states.length;
+    } else {
+      positionSlider.value = n;
+      document.getElementById("current-position").innerHTML = n+1;
+    }
+
+    
+  }
   const speedConversion = {
     "0.25x": 4,
     "0.5x": 2,
@@ -5193,6 +5212,7 @@
     for (let i = 0; i < states.length; i++) {
       // console.log(states[i]);
 
+      setPositionSlider(i);
       const newWhiteboard = canoePoloWhiteboard()
         .boatState(states[i])
         .transitionDuration(i === 0 ? 500 : duration);
@@ -5257,7 +5277,7 @@ Want an example? Click to load the demo!`
 
     downloadLink.click();
   };
-  const loadPositions = async (demo = false) => {
+  const loadPositions = async (demo = false, loadSession=false) => {
     console.log(document.getElementById("animation-file-input").value);
 
     if (demo) {
@@ -5266,9 +5286,23 @@ Want an example? Click to load the demo!`
       const scaledPositions = scaleData(positions);
       window.states = scaledPositions.boatStates;
       window.ballStates = scaledPositions.ballStates;
-      document.getElementById("state-count").innerHTML = window.states.length;
+      // document.getElementById("state-count").innerHTML = window.states.length;
+      setPositionSlider();
+      goToPosition(window.states.length - 1);
       return;
     }
+
+    if (loadSession) { 
+      const positions = JSON.parse(sessionStorage.getItem("states"));
+      const scaledPositions = scaleData(positions);
+      window.states = scaledPositions.boatStates;
+      window.ballStates = scaledPositions.ballStates;
+      // document.getElementById("state-count").innerHTML = window.states.length;
+      setPositionSlider();
+      goToPosition(window.states.length - 1);
+      return;
+    }
+
     let file = document.getElementById("animation-file-input").files[0];
     if (!file) {
       alert("No file selected");
@@ -5285,6 +5319,7 @@ Want an example? Click to load the demo!`
         window.ballStates = scaledPositions.ballStates;
         document.getElementById("state-count").innerHTML = window.states.length;
         console.log(window.states, window.ballStates);
+        setPositionSlider();
       } catch (error) {
         alert("Error - failed to read file");
         console.error(error);
@@ -5320,26 +5355,34 @@ Want an example? Click to load the demo!`
   };
 
   const open3D = () => {
+    const boatStates = window.states;
+    const ballStates = window.ballStates;
+    const svg = d3.select("#whiteboard-svg");
+    const width = svg.node().getBoundingClientRect().width;
+    const height = svg.node().getBoundingClientRect().height;
+    console.log(ballStates);
+    const obj = {
+      boatStates: boatStates,
+      ballStates: ballStates,
+      width: width,
+      height: height,
+    };
+    sessionStorage.setItem("states", JSON.stringify(obj));
+    console.log(JSON.parse(sessionStorage.getItem("states")));
+    const threeDLink = document.createElement("a");
+    threeDLink.href = "https://gabriel-ing.github.io/CanoePolo3D/";
+    document.body.appendChild(threeDLink);
+    threeDLink.click();
+  };
 
-      const boatStates = window.states;
-      const ballStates = window.ballStates;
-      const svg = d3.select("#whiteboard-svg");
-      const width = svg.node().getBoundingClientRect().width;
-      const height = svg.node().getBoundingClientRect().height;
-      console.log(ballStates);
-      const obj = {
-        boatStates: boatStates,
-        ballStates: ballStates,
-        width: width,
-        height: height,
-      };
-      sessionStorage.setItem("states", JSON.stringify(obj));
-      console.log(JSON.parse(sessionStorage.getItem("states")));
-      const threeDLink = document.createElement("a");
-      threeDLink.href = "https://gabriel-ing.github.io/CanoePolo3D/";
-      document.body.appendChild(threeDLink);
-      threeDLink.click();
-    
+  const goToPosition = (n) => {
+    console.log(`Going to position ${n}`);
+    const boatStates = window.states[n];
+    const ballStates = window.ballStates[n];
+    const svg = d3.select("#whiteboard-svg");
+    svg.call(canoePoloWhiteboard().boatState(boatStates));
+    svg.call(Ball().ballState(ballStates));
+    document.getElementById("current-position").innerHTML = Number(n)+1;
   };
   // export const getDemoStates = () => {
   //   const svg = d3.select("#whiteboard-svg");
@@ -5389,8 +5432,8 @@ Want an example? Click to load the demo!`
   window.mobile = checkMobile();
   window.saveChart = saveChart;
   window.savePng = saveChartPng;
-
   // Animation functions:
+  window.currentPosition = 0;
   window.states = [];
   window.ballStates = [];
   window.saveState = saveState;
@@ -5429,6 +5472,14 @@ Want an example? Click to load the demo!`
 
   //   `);
 
+  document
+    .getElementById("position-slider")
+    .addEventListener("change", (event) => {
+      window.currentPosition = event.target.value;
+      console.log(window.currentPosition);
+      goToPosition(event.target.value);
+    });
+
   document.getElementById("chart-container").style.width = `${
   window.innerWidth * 0.99
 }px`;
@@ -5447,7 +5498,7 @@ Want an example? Click to load the demo!`
     .attr("height", "100%");
   const width = svg.node().getBoundingClientRect().width;
   const height = svg.node().getBoundingClientRect().height;
-  console.log(window.resetState(width, height));
+  // console.log(window.resetState(width, height));
   const whiteboard = canoePoloWhiteboard().boatState(
     window.resetState(width, height)
   );
@@ -5505,6 +5556,11 @@ Want an example? Click to load the demo!`
     window.resetState = initialStateDict[event.target.value];
     resetScreen(true);
   });
+
+  if (sessionStorage.getItem("states")) {
+    console.log(sessionStorage.getItem("states"));
+    loadPositions(false, true);
+  }
 
 })();
 //# sourceMappingURL=bundle.js.map

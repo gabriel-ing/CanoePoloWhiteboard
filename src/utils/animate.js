@@ -1,7 +1,8 @@
 import { canoePoloWhiteboard } from "../canoePoloWhiteboard";
 import { getDemoStates, getDemoBallStates } from "./getDemoStates";
 import { Ball } from "../ball";
-export const saveState = () => {
+
+export const saveState = (rewrite = false) => {
   const svg = d3.select("#whiteboard-svg");
   const arr = svg.selectAll(".nodes").data();
   const newArr = structuredClone(arr);
@@ -9,12 +10,31 @@ export const saveState = () => {
     const ballState = structuredClone(svg.selectAll(".ball").data()[0]);
     window.ballStates.push(ballState);
   }
-
-  window.states.push(newArr);
-  console.log("state-saved");
-  document.getElementById("state-count").innerHTML = window.states.length;
+  if (!rewrite) {
+    window.states.push(newArr);
+    console.log("state-saved");
+    
+    setPositionSlider();
+  } else {
+    window.states[window.currentState] = newArr
+  }
 };
 
+function setPositionSlider(n = null) {
+  const positionSlider = document.getElementById("position-slider");
+  positionSlider.disabled = false;
+  positionSlider.max = window.states.length - 1;
+
+  if (!n) {
+    positionSlider.value = window.states.length - 1;
+    document.getElementById("current-position").innerHTML = window.states.length;
+  } else {
+    positionSlider.value = n;
+    document.getElementById("current-position").innerHTML = n+1;
+  }
+
+  
+}
 const speedConversion = {
   "0.25x": 4,
   "0.5x": 2,
@@ -34,6 +54,7 @@ export const reanimateStates = async (demo = false) => {
   for (let i = 0; i < states.length; i++) {
     // console.log(states[i]);
 
+    setPositionSlider(i)
     const newWhiteboard = canoePoloWhiteboard()
       .boatState(states[i])
       .transitionDuration(i === 0 ? 500 : duration);
@@ -98,7 +119,7 @@ export const savePositions = () => {
 
   downloadLink.click();
 };
-export const loadPositions = async (demo = false) => {
+export const loadPositions = async (demo = false, loadSession=false) => {
   console.log(document.getElementById("animation-file-input").value);
   let positions;
 
@@ -108,9 +129,23 @@ export const loadPositions = async (demo = false) => {
     const scaledPositions = scaleData(positions);
     window.states = scaledPositions.boatStates;
     window.ballStates = scaledPositions.ballStates;
-    document.getElementById("state-count").innerHTML = window.states.length;
+    // document.getElementById("state-count").innerHTML = window.states.length;
+    setPositionSlider();
+    goToPosition(window.states.length - 1);
     return;
   }
+
+  if (loadSession) { 
+    const positions = JSON.parse(sessionStorage.getItem("states"))
+    const scaledPositions = scaleData(positions);
+    window.states = scaledPositions.boatStates;
+    window.ballStates = scaledPositions.ballStates;
+    // document.getElementById("state-count").innerHTML = window.states.length;
+    setPositionSlider();
+    goToPosition(window.states.length - 1);
+    return;
+  }
+
   let file = document.getElementById("animation-file-input").files[0];
   if (!file) {
     alert("No file selected");
@@ -127,6 +162,7 @@ export const loadPositions = async (demo = false) => {
       window.ballStates = scaledPositions.ballStates;
       document.getElementById("state-count").innerHTML = window.states.length;
       console.log(window.states, window.ballStates);
+      setPositionSlider();
     } catch (error) {
       alert("Error - failed to read file");
       console.error(error);
@@ -162,26 +198,34 @@ const scaleData = (data) => {
 };
 
 export const open3D = () => {
+  const boatStates = window.states;
+  const ballStates = window.ballStates;
+  const svg = d3.select("#whiteboard-svg");
+  const width = svg.node().getBoundingClientRect().width;
+  const height = svg.node().getBoundingClientRect().height;
+  console.log(ballStates);
+  const obj = {
+    boatStates: boatStates,
+    ballStates: ballStates,
+    width: width,
+    height: height,
+  };
+  sessionStorage.setItem("states", JSON.stringify(obj));
+  console.log(JSON.parse(sessionStorage.getItem("states")));
+  const threeDLink = document.createElement("a");
+  threeDLink.href = "https://gabriel-ing.github.io/CanoePolo3D/";
+  document.body.appendChild(threeDLink);
+  threeDLink.click();
+};
 
-    const boatStates = window.states;
-    const ballStates = window.ballStates;
-    const svg = d3.select("#whiteboard-svg");
-    const width = svg.node().getBoundingClientRect().width;
-    const height = svg.node().getBoundingClientRect().height;
-    console.log(ballStates);
-    const obj = {
-      boatStates: boatStates,
-      ballStates: ballStates,
-      width: width,
-      height: height,
-    };
-    sessionStorage.setItem("states", JSON.stringify(obj));
-    console.log(JSON.parse(sessionStorage.getItem("states")))
-    const threeDLink = document.createElement("a");
-    threeDLink.href = "https://gabriel-ing.github.io/CanoePolo3D/";
-    document.body.appendChild(threeDLink);
-    threeDLink.click();
-  
+export const goToPosition = (n) => {
+  console.log(`Going to position ${n}`);
+  const boatStates = window.states[n];
+  const ballStates = window.ballStates[n];
+  const svg = d3.select("#whiteboard-svg");
+  svg.call(canoePoloWhiteboard().boatState(boatStates));
+  svg.call(Ball().ballState(ballStates));
+  document.getElementById("current-position").innerHTML = Number(n)+1;
 };
 // export const getDemoStates = () => {
 //   const svg = d3.select("#whiteboard-svg");
