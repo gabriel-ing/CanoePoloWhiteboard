@@ -3787,19 +3787,32 @@
     let d = parentNode.datum();
 
     let dx, dy;
+    
     if (window.mobile) {
       const touch = e.touches[0];
-      dx = touch.pageX - d.x;
-      dy = touch.pageY - d.y;
+      dx = touch.pageX ;
+      dy = touch.pageY;
     } else {
-      dx = e.sourceEvent.pageX - d.x;
-      dy = e.sourceEvent.pageY - d.y;
+
+      dx = e.sourceEvent.pageX;
+      dy = e.sourceEvent.pageY;
     }
 
-    let newAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+    // console.log("d.x = ", d.x);
+    // let newAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+    let a = { x: d.x, y: 0 };
+    let b = { x: d.x, y: d.y };
+    let c = { x: dx, y: dy };
 
-    d.r = d.r0  + newAngle;
 
+    let angle = Number(find_angle(a, b, c)) * (180 / Math.PI);
+    // console.log("pre-edit angle = ", angle.toFixed(2));
+    if (dx > d.x) angle = 360 - angle;
+    angle=180-angle;
+    // console.log("new angle = ", angle.toFixed(2));
+
+    d.r = angle;
+    
     parentNode.attr(
       "transform",
       (d) => `translate(${d.x}, ${d.y}) rotate(${d.r})`
@@ -3807,26 +3820,33 @@
   }
 
   function handleDrag(e) {
-      // console.log(e);
-      const parentNode = d3.select(this.parentNode);
-      let d = parentNode.datum(); // Get bound data
-    
-      if (!d.r) {
-        d.r = d.r0;
-      }
-      if (window.mobile) {
-        const touch = e.touches[0];
-        d.x = touch.pageX;
-        d.y = touch.pageY;
-      } else {
-        d.x = e.sourceEvent.pageX;
-        d.y = e.sourceEvent.pageY;
-      }
-    
-      parentNode.attr("transform", (d) => {
-        return `translate(${d.x}, ${d.y}) rotate(${d.r})`;
-      });
+    // console.log(e);
+    const parentNode = d3.select(this.parentNode);
+    let d = parentNode.datum(); // Get bound data
+
+    if (!d.r) {
+      d.r = d.r0;
     }
+    if (window.mobile) {
+      const touch = e.touches[0];
+      d.x = touch.pageX;
+      d.y = touch.pageY;
+    } else {
+      d.x = e.sourceEvent.pageX;
+      d.y = e.sourceEvent.pageY;
+    }
+
+    parentNode.attr("transform", (d) => {
+      return `translate(${d.x}, ${d.y}) rotate(${d.r})`;
+    });
+  }
+
+  function find_angle(A, B, C) {
+    var AB = Math.sqrt(Math.pow(B.x - A.x, 2) + Math.pow(B.y - A.y, 2));
+    var BC = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2));
+    var AC = Math.sqrt(Math.pow(C.x - A.x, 2) + Math.pow(C.y - A.y, 2));
+    return Math.acos((BC * BC + AB * AB - AC * AC) / (2 * BC * AB));
+  }
 
   const canoePoloWhiteboard = () => {
     let boatState;
@@ -5164,16 +5184,21 @@
     const svg = d3.select("#whiteboard-svg");
     const arr = svg.selectAll(".nodes").data();
     const newArr = structuredClone(arr);
-    if (window.ball) {
-      const ballState = structuredClone(svg.selectAll(".ball").data()[0]);
-      window.ballStates.push(ballState);
-    }
+
     if (!rewrite) {
+      if (window.ball) {
+        const ballState = structuredClone(svg.selectAll(".ball").data()[0]);
+        window.ballStates.push(ballState);
+      }
       window.states.push(newArr);
       console.log("state-saved");
       
       setPositionSlider();
     } else {
+      if (window.ball) {
+        const ballState = structuredClone(svg.selectAll(".ball").data()[0]);
+        window.ballStates[window.currentState]=ballState;
+      }
       window.states[window.currentState] = newArr;
     }
   };
@@ -5227,7 +5252,7 @@
       await delay(i === 0 ? 500 : duration);
     }
     console.log(states);
-    console.log(ballStates);
+    // console.log(ballStates);
   };
   const delay = (delayInms) => {
     return new Promise((resolve) => setTimeout(resolve, delayInms));
@@ -5237,20 +5262,25 @@
     alert(
       `How to Animate \n
     An animation is created by saving positions and then moving the boats directly between those positions. 
-     Step 1: Save the initial positions with the 'Save State' button.
-     Step 2: Move the boats to a new position and click 'Save State'. You may change as many boats as you wish between states.
+     Step 1: Save the initial positions with the 'Add Frame' button.
+     Step 2: Move the boats to a new position and click 'Add Frame'. Change as many boats as you wish between states.
      Step 3: Repeat for any amount of positions
-     Step 4: Choose the duration of the animation between each state (note total duration = time per state X number of states)
-     Step 5: Click 'Animate' and the screen will animate the pre-defined states
+     Step 4: Click 'Play Animation' and the screen will animate between the frames
      
-Want an example? Click to load the demo!`
+Want an example? Click to load the demo and then press 'Play Animation'!
+
+After creating the animation, you can return to frames using the slider, and edit the frame you are on with the 'Rewrite frame' 
+
+When you are happy with an animation, try it in 3D with the 'View in 3D' button! (note this is still in production)
+`
     );
   };
 
   const clearAnimation = () => {
     window.states = [];
     window.ballStates = [];
-    document.getElementById("state-count").innerHTML = window.states.length;
+    document.getElementById("position-slider").disabled=true;
+    document.getElementById("current-position").innerHTML='0';
   };
 
   const savePositions = () => {
@@ -5498,6 +5528,7 @@ Want an example? Click to load the demo!`
     .attr("height", "100%");
   const width = svg.node().getBoundingClientRect().width;
   const height = svg.node().getBoundingClientRect().height;
+
   // console.log(window.resetState(width, height));
   const whiteboard = canoePoloWhiteboard().boatState(
     window.resetState(width, height)

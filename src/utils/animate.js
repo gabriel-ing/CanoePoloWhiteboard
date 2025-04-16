@@ -6,16 +6,21 @@ export const saveState = (rewrite = false) => {
   const svg = d3.select("#whiteboard-svg");
   const arr = svg.selectAll(".nodes").data();
   const newArr = structuredClone(arr);
-  if (window.ball) {
-    const ballState = structuredClone(svg.selectAll(".ball").data()[0]);
-    window.ballStates.push(ballState);
-  }
+
   if (!rewrite) {
+    if (window.ball) {
+      const ballState = structuredClone(svg.selectAll(".ball").data()[0]);
+      window.ballStates.push(ballState);
+    }
     window.states.push(newArr);
     console.log("state-saved");
     
     setPositionSlider();
   } else {
+    if (window.ball) {
+      const ballState = structuredClone(svg.selectAll(".ball").data()[0]);
+      window.ballStates[window.currentState]=ballState;
+    }
     window.states[window.currentState] = newArr
   }
 };
@@ -69,7 +74,7 @@ export const reanimateStates = async (demo = false) => {
     let delayres = await delay(i === 0 ? 500 : duration);
   }
   console.log(states);
-  console.log(ballStates);
+  // console.log(ballStates);
 };
 const delay = (delayInms) => {
   return new Promise((resolve) => setTimeout(resolve, delayInms));
@@ -79,20 +84,25 @@ export const animationInstructions = () => {
   alert(
     `How to Animate \n
     An animation is created by saving positions and then moving the boats directly between those positions. 
-     Step 1: Save the initial positions with the 'Save State' button.
-     Step 2: Move the boats to a new position and click 'Save State'. You may change as many boats as you wish between states.
+     Step 1: Save the initial positions with the 'Add Frame' button.
+     Step 2: Move the boats to a new position and click 'Add Frame'. Change as many boats as you wish between states.
      Step 3: Repeat for any amount of positions
-     Step 4: Choose the duration of the animation between each state (note total duration = time per state X number of states)
-     Step 5: Click 'Animate' and the screen will animate the pre-defined states
+     Step 4: Click 'Play Animation' and the screen will animate between the frames
      
-Want an example? Click to load the demo!`
+Want an example? Click to load the demo and then press 'Play Animation'!
+
+After creating the animation, you can return to frames using the slider, and edit the frame you are on with the 'Rewrite frame' 
+
+When you are happy with an animation, try it in 3D with the 'View in 3D' button! (note this is still in production)
+`
   );
 };
 
 export const clearAnimation = () => {
   window.states = [];
   window.ballStates = [];
-  document.getElementById("state-count").innerHTML = window.states.length;
+  document.getElementById("position-slider").disabled=true;
+  document.getElementById("current-position").innerHTML='0'
 };
 
 export const savePositions = () => {

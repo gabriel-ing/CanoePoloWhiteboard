@@ -102,6 +102,7 @@ const svg = div
   .attr("height", "100%");
 const width = svg.node().getBoundingClientRect().width;
 const height = svg.node().getBoundingClientRect().height;
+
 // console.log(window.resetState(width, height));
 const whiteboard = canoePoloWhiteboard().boatState(
   window.resetState(width, height)
@@ -164,6 +165,6 @@ document.getElementById("reset-state").addEventListener("change", (event) => {
 });
 
 if (sessionStorage.getItem("states")) {
-  console.log(sessionStorage.getItem("states"))
+  console.log(sessionStorage.getItem("states"));
   loadPositions(false, true);
 }
