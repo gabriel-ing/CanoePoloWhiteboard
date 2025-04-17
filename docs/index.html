@@ -6,139 +6,8 @@
       src="https://kit.fontawesome.com/622a4eef00.js"
       crossorigin="anonymous"
     ></script>
+    <link rel="stylesheet" href="styles.css" />
     <script src="https://d3js.org/d3.v7.min.js"></script>
-
-    <style>
-      .color-square {
-        cursor: pointer;
-      }
-      .nodes:active {
-        stroke-dasharray: 2 2;
-      }
-
-      body {
-        font-family: arial;
-        overflow: hidden;
-        margin: 0;
-        height: 100%;
-      }
-      #header {
-        width: 100%;
-        background-color: #336299;
-        height: 50px;
-        display: flex;
-        position: fixed;
-        bottom: 0;
-        justify-content: center;
-      }
-      button {
-        margin: auto;
-      }
-      #chart {
-        margin: 10px auto;
-        width: 99.5%;
-        /* height: 800px; */
-        background-color: rgb(255, 255, 255);
-        flex-grow: 1;
-        flex-shrink: 1;
-      }
-      .flex-container {
-        display: flex;
-      }
-      .animation-panel {
-        border: 1px dashed black;
-        background-color: #f3ecf9;
-        /* height: 80%; */
-        opacity: 0.8;
-        padding: 10px;
-        line-height: 1em;
-        margin: 5px;
-        /* display: flex; */
-        position: absolute;
-        bottom: 0;
-        right: 10px;
-        max-width: 70%;
-        justify-content: center;
-        text-align: center;
-        max-height: 10vh;
-        min-height: 5vh;
-        overflow: auto;
-      }
-      #options-panel {
-        border: 1px dashed black;
-        background-color: #ecf9f3;
-        max-height: 10vh;
-        opacity: 0.8;
-        padding: 10px;
-        line-height: 1em;
-        margin: 5px;
-        display: flex;
-        flex-direction: column;
-        overflow:scroll;
-        position: absolute;
-        bottom: 0;
-        left: 10px;
-      }
-      .animation-button {
-        margin: 5px 5px;
-        flex-shrink: 2;
-        flex-grow: 1;
-        /* height: 50%; */
-        /* width: 10%; */
-        border: 1px solid black;
-        background-color: white;
-        border-radius: 5px;
-        font-size: 12px;
-        /* padding: 2px; */
-        max-height: 40%;
-        min-height: 10%;
-      }
-      #button-panel {
-        position: absolute;
-        right: 50px;
-        top: 50px;
-        display: flex;
-      }
-      .button-panel-icon {
-        transform: scale(2);
-        margin: 0px 15px;
-      }
-      .animation-options {
-        display: flex;
-        gap: 15px;
-        font-size: 12px;
-      }
-      #animation-title {
-        line-height: 1em;
-        margin: 2px;
-        font-size: 20px;
-      }
-      .main-buttons {
-        display: flex;
-        flex-direction: column;
-        margin: 2px;
-        justify-content: space-between;
-      }
-      .speed-label {
-        display: flex;
-        flex-direction: column;
-      }
-      #chart {
-        height: 90%;
-      }
-      #chart-container {
-        background-color: white;
-      }
-      .flex-column {
-        flex-direction: column;
-        display: flex;
-        flex-shrink: 1;
-      }
-      .animation-button:hover{
-        transform: scale(1.1);
-        cursor:pointer;
-      }
-    </style>
   </head>
   <body>
     <!-- <div id="header"></div> -->
@@ -147,131 +16,115 @@
         <div id="chart"></div>
         <div id="button-panel">
           <i
+            class="fa-solid fa-circle-info button-panel-icon"
+            onclick="showInfo()"
+          ></i>
+          <i
             class="fa-solid fa-rotate-right button-panel-icon"
             onclick="resetScreen('whiteboard-svg', true)"
           ></i>
           <i
-            class="fa-solid fa-download button-panel-icon"
-            onclick="savePng('whiteboard-svg')"
+          class="fa-solid fa-maximize button-panel-icon"
+          id="fullscreen-button"
+          onclick="displayFullScreen('chart-container')"
           ></i>
-          <i
-            class="fa-solid fa-maximize button-panel-icon"
-            id="fullscreen-button"
-            onclick="displayFullScreen('chart-container')"
-          ></i>
+          <div class="button-panel-icon demo-icon" onclick="loadPositions(true)">DEMO</div>
           <!-- <i class="fa-solid fa-xmark button-panel-icon" ></i> -->
-        </div>
-        <div class="animation-panel">
-          <!-- <h5 id="animation-title">Animation Control</h5> -->
-          <div class="animation-options">
-            <div class="flex-column">
-              <button onclick="reanimateStates(false)" class="animation-button">
-                Play Animation
-              </button>
-            </div>
-            <div class="main-buttons flex-column">
-              <button onclick="saveState()" class="animation-button">
-                Add Frame
-              </button>
-              <button onclick="saveState(rewrite=true)" class="animation-button">
-                Rewrite Frame
-              </button>
-              <button onclick="clearAnimation()" class="animation-button">
-                Clear Frames
-              </button>
-            </div>
-            <div class="speed-label flex-column">
-              Current Position:
-              <div id="current-position">0</div>
-              <input type="range" step="1" max="10" min="0" value="0" id="position-slider" disabled></input>
-
-            </div>
-            <div class="speed-label flex-column">
-              <label for="duration">Animation Speed</label>
-              <select id="duration" class="animation-button">
-                <option>0.25x</option>
-                <option>0.5x</option>
-                <option>0.75x</option>
-                <option selected>1x</option>
-                <option>2x</option>
-                <option>4x</option>
-              </select>
-            </div>
-            <div class="flex-column">
-              <button
-                onclick="animationInstructions()"
-                class="animation-button"
-              >
-                ?
-              </button>
-            </div>
-            <div class="flex-column">
-              <button onclick="loadPositions(true)" class="animation-button">
-                Load Demo
-              </button>
-            </div>
-
-            <div id="save-load-panel flex-column">
-              <button onclick="savePositions()" class="animation-button">
-                Save Positions File
-              </button>
-              <div>
-                <label for="animation-file-input" class="animation-button"
-                  >Load Positions File</label
-                >
-                <input
-                class="animation-button"
-                  type="file"
-                  id="animation-file-input"
-                  accept=".json"
-                  style="display: none"
-                />
-              </div>
-              <button onclick="open3D()" class="animation-button">View in 3D (Beta)</button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
-    <div id="options-panel">
-      <label> <input type="checkbox" id="ball-checkbox" checked /> Ball </label>
+    <div class="control-panel">
+      <label for="nTeam1" class="new-button"
+        >Orange Boats
+        <select id="nTeam1">
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+          <option selected>5</option>
+        </select></label
+      >
 
-      <label for="nTeam1">Orange Boats</label>
-      <select id="nTeam1">
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option selected>5</option>
-      </select>
-      <label for="nTeam2">Green Boats</label>
-      <select id="nTeam2">
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option selected>5</option>
-      </select>
-      <label for="reset-state">Initial State</label>
-      <select id="reset-state">
-        <option selected>Kickoff</option>
-        <option>Even</option>
-        <option>Post Green Goal</option>
-        <option>Post Orange Goal</option>
-
-      </select>
+      <label for="nTeam2" class="new-button"
+        >Green Boats
+        <select id="nTeam2">
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+          <option selected>5</option>
+        </select></label
+      >
+      <label class="new-button">Ball
+        <input type="checkbox" id="ball-checkbox" checked /> 
+      </label>
+      <label for="reset-state" class=" double-button new-button"
+        >Initial State
+        <select id="reset-state">
+          <option selected>Kickoff</option>
+          <option>Even</option>
+          <option>Post Green Goal</option>
+          <option>Post Orange Goal</option>
+        </select></label
+      >
+      <div class="new-button" onclick="reanimateStates(false)">
+        <i class="fa-solid fa-play"></i>Play
+      </div>
+      <label for="position-slider" class="double-button new-button">
+        <div id="current-position">0</div>
+        <input
+        type="range"
+        step="1"
+        max="10"
+        min="0"
+        value="0"
+        id="position-slider"
+        disabled
+        />
+      </label>
+      <div class="new-button" onclick="saveState()">
+        <i class="fa-solid fa-square-plus"></i>Add Frame
+      </div>
+      <div class="new-button" onclick="saveState(rewrite=true)">
+        <i class="fa-solid fa-plus"></i>Rewrite frame
+      </div>
+      <div class="new-button" onclick="clearAnimation()">
+        <i class="fa-solid fa-trash"></i>Reset
+      </div>
+      <label for="duration" class="new-button" width="70%">
+        Animation Speed
+        <select id="duration">
+          <option>0.25x</option>
+          <option>0.5x</option>
+          <option>0.75x</option>
+          <option selected>1x</option>
+          <option>2x</option>
+          <option>4x</option>
+        </select>
+      </label>
+      <div class="new-button" onclick="open3D()">
+        <i class="fa-solid fa-cube"></i>3D (beta)
+      </div>
+      <div class="new-button" onclick="savePositions()">
+        <i class="fa-solid fa-floppy-disk"></i>
+        Save Animation File
+      </div>
+      <div class="new-button" onclick="savePng()">
+        <i class="fa-solid fa-camera"></i>Save Image
+      </div>
+      <label class="new-button" for="animation-file-input">
+        <input
+        class="animation-button"
+        type="file"
+        id="animation-file-input"
+        accept=".json"
+        style="display: none"
+        />
+        <i class="fa-solid fa-upload"></i>
+        Load file
+      </label>
     </div>
-    <!-- <div id="header">
-      <button onclick="displayFullScreen('chart')">Display Full Screen</button
-      ><button onclick="saveChart('whiteboard-svg')">Save SVG</button>
-      <button onclick="savePng('whiteboard-svg')">Save PNG</button>
-      <button onclick="resetScreen('whiteboard-svg', false)">Reset Playing Area</button>
-      <button onclick="changeState()">Change State</button>
-      <button onclick="resetScreen('whiteboard-svg', true)">
-        Reset Everything
-      </button>
 
-    </div> -->
     <script src="bundle.js"></script>
   </body>
 </html>

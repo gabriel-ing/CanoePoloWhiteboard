@@ -1,0 +1,183 @@
+      .color-square {
+        cursor: pointer;
+      }
+      .nodes:active {
+        stroke-dasharray: 2 2;
+      }
+
+      body {
+        font-family: arial;
+        overflow: hidden;
+        margin: 0;
+        height: 100%;
+      }
+      #header {
+        width: 100%;
+        background-color: #336299;
+        height: 50px;
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        justify-content: center;
+      }
+      button {
+        margin: auto;
+      }
+      #chart {
+        margin: 10px auto;
+        width: 99.5%;
+        /* height: 800px; */
+        background-color: rgb(255, 255, 255);
+        flex-grow: 1;
+        flex-shrink: 1;
+      }
+      .flex-container {
+        display: flex;
+      }
+      .animation-panel {
+        border: 1px dashed black;
+        /* background-color: #f3ecf9; */
+        /* height: 80%; */
+        opacity: 0.8;
+        padding: 10px;
+        line-height: 1em;
+        margin: 5px;
+        /* display: flex; */
+        position: absolute;
+        bottom: 0;
+        right: 10px;
+        max-width: 70%;
+        justify-content: center;
+        text-align: center;
+        max-height: 5vh;
+        min-height: 5vh;
+        overflow: auto;
+      }
+      #options-panel {
+        border: 1px dashed black;
+        /* background-color: #ecf9f3; */
+        max-height: 10vh;
+        opacity: 0.8;
+        padding: 10px;
+        line-height: 1em;
+        margin: 5px;
+        display: flex;
+        flex-direction: column;
+        overflow:scroll;
+        position: absolute;
+        bottom: 0;
+        left: 10px;
+        display:none;
+        visibility: hidden;
+      }
+      .animation-button {
+        margin: 5px 5px;
+        flex-shrink: 2;
+        flex-grow: 1;
+        /* height: 50%; */
+        /* width: 10%; */
+        border: 1px solid black;
+        background-color: white;
+        border-radius: 5px;
+        font-size: 12px;
+        /* padding: 2px; */
+        max-height: 40%;
+        min-height: 10%;
+      }
+      #button-panel {
+        position: absolute;
+        right: 50px;
+        top: 50px;
+        display: flex;
+      }
+      .button-panel-icon {
+        transform: scale(2);
+        margin: 0px 15px;
+      }
+      .button-panel-icon:hover{
+        transform: scale(2.2);
+      }
+      .animation-options {
+        display: flex;
+        gap: 15px;
+        font-size: 12px;
+      }
+      #animation-title {
+        line-height: 1em;
+        margin: 2px;
+        font-size: 20px;
+      }
+      .main-buttons {
+        display: flex;
+        flex-direction: column;
+        margin: 2px;
+        justify-content: space-between;
+      }
+      .speed-label {
+        display: flex;
+        flex-direction: column;
+      }
+      #chart {
+        height: 90%;
+      }
+      /* #chart-container {
+        background-color: white;
+      } */
+      .flex-column {
+        flex-direction: column;
+        display: flex;
+        flex-shrink: 1;
+      }
+      .animation-button:hover{
+        transform: scale(1.1);
+        cursor:pointer;
+      }
+
+      body{
+        background: #d9e5f2;
+      }
+
+      .new-button{
+        width: calc(100%/16);
+        height:100%;
+        border: 1px dashed rgb(208, 208, 208);
+        background-color: #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        /* justify-content: center; */
+        align-items: center;
+        font-size:xx-small;
+        text-align: center;
+        justify-content: space-evenly;
+
+        
+      }
+      .new-button:hover{
+        transform: scale(1.05);
+        cursor: pointer;
+      }
+      .double-button{
+        width: calc(100%/8)
+      }
+      .control-panel{
+            width:96%;
+            height:10%;
+            position: absolute;
+            bottom: 5px;
+            margin:10px;
+            display: flex;
+            
+      }
+      #position-slider{
+        width: 90%
+      }
+      select{
+        max-width: 90%;
+      }
+      .demo-icon{
+        font-size: x-small;
+        font-weight: 900;
+        transform: rotate(45);
+        letter-spacing: -0.1em;
+      }
+      

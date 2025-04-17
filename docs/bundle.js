@@ -3344,7 +3344,7 @@
         y: height / 2,
         r0: 90,
         r:90,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 1,
         team: 1,
         visible: null,
@@ -3354,7 +3354,7 @@
         y: height / 3,
         r0: 90,
         r:90,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 2,
         team: 1,
         visible: null,
@@ -3364,7 +3364,7 @@
         y: (height * 2) / 3,
         r0: 90,
         r:90,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 3,
         team: 1,
         visible: null,
@@ -3374,7 +3374,7 @@
         y: height / 6,
         r0: 90,
         r:90,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 4,
         team: 1,
         visible: null,
@@ -3384,7 +3384,7 @@
         y: (height * 5) / 6,
         r0: 90,
         r:90,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 5,
         team: 1,
         visible: null,
@@ -3464,7 +3464,7 @@
         y: height / 2,
         r0: 90,
         r: 90,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 1,
         team: 1,
         visible: null,
@@ -3474,7 +3474,7 @@
         y: height / 3,
         r0: 90,
         r: 90,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 2,
         team: 1,
         visible: null,
@@ -3484,7 +3484,7 @@
         y: (height * 2) / 3,
         r0: 90,
         r: 90,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 3,
         team: 1,
         visible: null,
@@ -3494,7 +3494,7 @@
         y: height / 6,
         r0: 90,
         r: 90,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 4,
         team: 1,
         visible: null,
@@ -3504,7 +3504,7 @@
         y: (height * 5) / 6,
         r0: 90,
         r: 90,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 5,
         team: 1,
         visible: null,
@@ -3576,7 +3576,7 @@
         y: height / 2,
         r0: 90,
         r: 90,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 1,
         visible: null,
       },
@@ -3585,7 +3585,7 @@
         y: (height * 2) / 5,
         r0: 135,
         r: 135,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 2,
         visible: null,
       },
@@ -3594,7 +3594,7 @@
         y: (height * 3) / 5,
         r0: 45,
         r: 45,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 3,
         visible: null,
       },
@@ -3603,7 +3603,7 @@
         y: (height * 3) / 10,
         r0: 120,
         r: 120,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 4,
         visible: null,
       },
@@ -3612,7 +3612,7 @@
         y: (height * 7) / 10,
         r0: 70,
         r: 70,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 5,
         visible: null,
       },
@@ -3673,7 +3673,7 @@
         y: height / 2,
         r0: 90,
         r: 90,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 1,
         visible: null,
       },
@@ -3682,7 +3682,7 @@
         y: (height * 2) / 5,
         r0: 100,
         r: 100,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 2,
         visible: null,
       },
@@ -3691,7 +3691,7 @@
         y: (height * 3) / 5,
         r0: 80,
         r: 80,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 3,
         visible: null,
       },
@@ -3700,7 +3700,7 @@
         y: (height * 3) / 10,
         r0: 85,
         r: 85,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 4,
         visible: null,
       },
@@ -3709,7 +3709,7 @@
         y: (height * 7) / 10,
         r0: 95,
         r: 95,
-        color: "#e6ceb2",
+        color: "#b58cd9",
         id: 5,
         visible: null,
       },
@@ -3870,6 +3870,11 @@
     // console.log(window.dragStart);
   }
 
+  const teamColors = {
+    1:  {baseColor: "#b58cd9", outline:"#9d66cc", cockpitColor:"#ffffff", number:"#4f2673", handleColor:"#35194d"},
+    2: {baseColor:"#66cc9d", outline:"#3fc084", "cockpitColor":"#ffffff", number:"#26734f", handleColor:"#0d261a"}
+  };
+
   const canoePoloWhiteboard = () => {
     let boatState;
     let transitionDuration = 1000;
@@ -3911,9 +3916,9 @@
         .attr("x", 0)
         .attr("y", 0)
         .attr("id", "pitch")
-        .attr("stroke", "#cc6695")
+        .attr("stroke", "#264a73")
         .attr("stroke-width", 2)
-        .attr("fill", "#ecf2f9");
+        .attr("fill", "#ffffff");
 
       playingArea
         .selectAll(".goals")
@@ -3960,19 +3965,19 @@
               .join("path")
               .attr("class", "boat")
               .attr("d", generateBoatPath(0, 0, boatWidth, boatHeight))
-              .attr("fill", (d) => d.color)
-              .attr("stroke", "black")
-              .attr("stroke-width", boatWidth / 10);
+              .attr("fill", (d) => teamColors[d.team].baseColor)
+              .attr("stroke", (d)=> teamColors[d.team].outline)
+              .attr("stroke-width", boatWidth / 20);
 
             const rotationHandles = g
               .append("circle")
               .attr("cx", 0)
               .attr("cy", boatHeight / 2 + boatWidth / 2)
               .attr("r", boatWidth / 8)
-              .attr("fill", "#0d1926")
-              .attr("stroke", "#0d1926")
+              .attr("fill", d=>teamColors[d.team].handleColor)
+              .attr("stroke", d=>teamColors[d.team].handleColor)
               .attr("class", "rotation-handles")
-              .attr("stroke-width", 5);
+              .attr("stroke-width", 2);
 
             const cockpits = g
               .append("circle")
@@ -3980,16 +3985,19 @@
               .attr("cx", 0)
               .attr("cy", 0)
               .attr("r", boatWidth / 2)
-              .attr("opacity", 0.3);
+              .attr("opacity", 0.7)
+              .attr("fill", d=> teamColors[d.team].cockpitColor);
 
             const ids = g
               .selectAll("boatID")
               .data((nodeData) => [nodeData])
               .join("text")
               .attr("x", 0)
+              .attr("fill", d=>teamColors[d.team].number)
               .attr("y", boatWidth * 0.3)
               .attr("text-anchor", "middle")
               .attr("font-size", boatWidth * 0.8)
+              .attr("transform", d=>`rotate(${-d.r0})`)
               .text((d) => d.id);
 
             if (window.mobile) {
@@ -4047,6 +4055,7 @@
     return my;
   };
 
+  const ballColor = "#264a73";
   const Ball = () => {
     let ballState;
     let transitionDuration = 1000;
@@ -4076,7 +4085,7 @@
               .attr("stroke", "black")
               .attr("cx", 0)
               .attr("cy", 0)
-              .attr("fill", "#e6dfb2")
+              .attr("fill", ballColor)
               .attr("r", radius);
 
             if (window.mobile) {
@@ -5470,16 +5479,34 @@ When you are happy with an animation, try it in 3D with the 'View in 3D' button!
   window.open3D = open3D;
   window.ball = true; //document.getElementById("ball-checkbox").checked;
   window.resetState = getInitialBoatStateKickoff;
+  // document.getElementById("options-panel").display = "none";
+  // document.getElementById("options-panel").visibility = "hidden";
   document.getElementById("ball-checkbox").addEventListener("change", (event) => {
     window.ball = event.target.checked;
     svg.selectAll(".ball").style("display", event.target.checked ? null : "none");
   });
+
+  window.optionsClick = () => {
+    document.getElementById("options-panel").display = true;
+    document.getElementById("options-panel").visibility = "true";
+  };
 
   document
     .getElementById("animation-file-input")
     .addEventListener("change", (event) => {
       loadPositions(false);
     });
+
+  window.showInfo = () => {
+    alert(`Welcome to the Canoe Polo Whiteboard! 
+      Its a basic tactics tool for Canoe Polo.
+
+      To start using it, just click on the boats and or ball and drag them around. The black circle at the back of each boat is the 'rotation handle' - click here to rotate the boat.
+
+      Once you get going, try animating it - there is a separate info button on the animation panel!
+    
+    `);
+  };
   //Button functions:
   window.resetScreen = resetScreen;
   window.mobile = checkMobile();
@@ -5537,7 +5564,7 @@ When you are happy with an animation, try it in 3D with the 'View in 3D' button!
   window.innerWidth * 0.99
 }px`;
   document.getElementById("chart-container").style.height = `${
-  window.innerHeight * 0.99 - 50
+  window.innerHeight * 0.95
 }px`;
 
   window.displayFullScreen = displayFullScreen;
@@ -5549,8 +5576,14 @@ When you are happy with an animation, try it in 3D with the 'View in 3D' button!
     .attr("preserveAspectRatio", "xMinYMin meet")
     .attr("width", "100%")
     .attr("height", "100%");
+
   const width = svg.node().getBoundingClientRect().width;
   const height = svg.node().getBoundingClientRect().height;
+  svg
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("fill", "#d9e5f2");
 
   // console.log(window.resetState(width, height));
   const whiteboard = canoePoloWhiteboard().boatState(

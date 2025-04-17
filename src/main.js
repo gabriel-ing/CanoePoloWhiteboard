@@ -21,16 +21,34 @@ import { Ball } from "./ball.js";
 window.open3D = open3D;
 window.ball = true; //document.getElementById("ball-checkbox").checked;
 window.resetState = getInitialBoatStateKickoff;
+// document.getElementById("options-panel").display = "none";
+// document.getElementById("options-panel").visibility = "hidden";
 document.getElementById("ball-checkbox").addEventListener("change", (event) => {
   window.ball = event.target.checked;
   svg.selectAll(".ball").style("display", event.target.checked ? null : "none");
 });
+
+window.optionsClick = () => {
+  document.getElementById("options-panel").display = true;
+  document.getElementById("options-panel").visibility = "true";
+};
 
 document
   .getElementById("animation-file-input")
   .addEventListener("change", (event) => {
     loadPositions(false);
   });
+
+window.showInfo = () => {
+  alert(`Welcome to the Canoe Polo Whiteboard! 
+      Its a basic tactics tool for Canoe Polo.
+
+      To start using it, just click on the boats and or ball and drag them around. The black circle at the back of each boat is the 'rotation handle' - click here to rotate the boat.
+
+      Once you get going, try animating it - there is a separate info button on the animation panel!
+    
+    `);
+};
 //Button functions:
 window.resetScreen = resetScreen;
 window.mobile = checkMobile();
@@ -88,7 +106,7 @@ document.getElementById("chart-container").style.width = `${
   window.innerWidth * 0.99
 }px`;
 document.getElementById("chart-container").style.height = `${
-  window.innerHeight * 0.99 - 50
+  window.innerHeight * 0.95
 }px`;
 
 window.displayFullScreen = displayFullScreen;
@@ -100,8 +118,14 @@ const svg = div
   .attr("preserveAspectRatio", "xMinYMin meet")
   .attr("width", "100%")
   .attr("height", "100%");
+
 const width = svg.node().getBoundingClientRect().width;
 const height = svg.node().getBoundingClientRect().height;
+svg
+  .append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("fill", "#d9e5f2");
 
 // console.log(window.resetState(width, height));
 const whiteboard = canoePoloWhiteboard().boatState(

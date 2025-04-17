@@ -1,4 +1,5 @@
 import { dragStart, handleDrag } from "./utils/handleDrag";
+const ballColor = "#264a73"
 export const Ball = () => {
   let ballState;
   let transitionDuration = 1000;
@@ -28,7 +29,7 @@ export const Ball = () => {
             .attr("stroke", "black")
             .attr("cx", 0)
             .attr("cy", 0)
-            .attr("fill", "#e6dfb2")
+            .attr("fill", ballColor)
             .attr("r", radius);
 
           if (window.mobile) {

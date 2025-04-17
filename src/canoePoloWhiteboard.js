@@ -3,6 +3,11 @@ import { generateBoatPath } from "./utils/generateBoatPath";
 import { handleDrag, handleRotation, dragStart } from "./utils/handleDrag";
 import * as d3 from "d3";
 
+const teamColors = {
+  1:  {baseColor: "#b58cd9", outline:"#9d66cc", cockpitColor:"#ffffff", number:"#4f2673", handleColor:"#35194d"},
+  2: {baseColor:"#66cc9d", outline:"#3fc084", "cockpitColor":"#ffffff", number:"#26734f", handleColor:"#0d261a"}
+}
+
 export const canoePoloWhiteboard = () => {
   let boatState;
   let transitionDuration = 1000;
@@ -44,9 +49,9 @@ export const canoePoloWhiteboard = () => {
       .attr("x", 0)
       .attr("y", 0)
       .attr("id", "pitch")
-      .attr("stroke", "#cc6695")
+      .attr("stroke", "#264a73")
       .attr("stroke-width", 2)
-      .attr("fill", "#ecf2f9");
+      .attr("fill", "#ffffff");
 
     const goals = playingArea
       .selectAll(".goals")
@@ -93,19 +98,19 @@ export const canoePoloWhiteboard = () => {
             .join("path")
             .attr("class", "boat")
             .attr("d", generateBoatPath(0, 0, boatWidth, boatHeight))
-            .attr("fill", (d) => d.color)
-            .attr("stroke", "black")
-            .attr("stroke-width", boatWidth / 10);
+            .attr("fill", (d) => teamColors[d.team].baseColor)
+            .attr("stroke", (d)=> teamColors[d.team].outline)
+            .attr("stroke-width", boatWidth / 20);
 
           const rotationHandles = g
             .append("circle")
             .attr("cx", 0)
             .attr("cy", boatHeight / 2 + boatWidth / 2)
             .attr("r", boatWidth / 8)
-            .attr("fill", "#0d1926")
-            .attr("stroke", "#0d1926")
+            .attr("fill", d=>teamColors[d.team].handleColor)
+            .attr("stroke", d=>teamColors[d.team].handleColor)
             .attr("class", "rotation-handles")
-            .attr("stroke-width", 5);
+            .attr("stroke-width", 2);
 
           const cockpits = g
             .append("circle")
@@ -113,16 +118,19 @@ export const canoePoloWhiteboard = () => {
             .attr("cx", 0)
             .attr("cy", 0)
             .attr("r", boatWidth / 2)
-            .attr("opacity", 0.3);
+            .attr("opacity", 0.7)
+            .attr("fill", d=> teamColors[d.team].cockpitColor);
 
           const ids = g
             .selectAll("boatID")
             .data((nodeData) => [nodeData])
             .join("text")
             .attr("x", 0)
+            .attr("fill", d=>teamColors[d.team].number)
             .attr("y", boatWidth * 0.3)
             .attr("text-anchor", "middle")
             .attr("font-size", boatWidth * 0.8)
+            .attr("transform", d=>`rotate(${-d.r0})`)
             .text((d) => d.id);
 
           if (window.mobile) {
