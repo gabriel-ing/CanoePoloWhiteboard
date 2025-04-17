@@ -3787,13 +3787,12 @@
     let d = parentNode.datum();
 
     let dx, dy;
-    
+
     if (window.mobile) {
       const touch = e.touches[0];
-      dx = touch.pageX ;
+      dx = touch.pageX;
       dy = touch.pageY;
     } else {
-
       dx = e.sourceEvent.pageX;
       dy = e.sourceEvent.pageY;
     }
@@ -3804,15 +3803,14 @@
     let b = { x: d.x, y: d.y };
     let c = { x: dx, y: dy };
 
-
     let angle = Number(find_angle(a, b, c)) * (180 / Math.PI);
     // console.log("pre-edit angle = ", angle.toFixed(2));
     if (dx > d.x) angle = 360 - angle;
-    angle=180-angle;
+    angle = 180 - angle;
     // console.log("new angle = ", angle.toFixed(2));
 
     d.r = angle;
-    
+
     parentNode.attr(
       "transform",
       (d) => `translate(${d.x}, ${d.y}) rotate(${d.r})`
@@ -3823,19 +3821,31 @@
     // console.log(e);
     const parentNode = d3.select(this.parentNode);
     let d = parentNode.datum(); // Get bound data
-
+    // console.log(e.dx.toFixed(1), e.dy.toFixed(1));
+    let dx, dy;
     if (!d.r) {
       d.r = d.r0;
     }
     if (window.mobile) {
       const touch = e.touches[0];
-      d.x = touch.pageX;
-      d.y = touch.pageY;
+
+      dx = touch.pageX - window.dragStart[0];
+      window.dragStart[0] = touch.pageX;
+
+      dy = touch.pageY - window.dragStart[1];
+      window.dragStart[1] = touch.pageY;
+
     } else {
-      d.x = e.sourceEvent.pageX;
-      d.y = e.sourceEvent.pageY;
+      dx = e.sourceEvent.pageX - window.dragStart[0];
+      window.dragStart[0] = e.sourceEvent.pageX;
+
+      dy = e.sourceEvent.pageY - window.dragStart[1];
+      window.dragStart[1] = e.sourceEvent.pageY;
+      
     }
 
+    d.x = d.x + dx;
+    d.y = d.y + dy;
     parentNode.attr("transform", (d) => {
       return `translate(${d.x}, ${d.y}) rotate(${d.r})`;
     });
@@ -3846,6 +3856,18 @@
     var BC = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2));
     var AC = Math.sqrt(Math.pow(C.x - A.x, 2) + Math.pow(C.y - A.y, 2));
     return Math.acos((BC * BC + AB * AB - AC * AC) / (2 * BC * AB));
+  }
+
+  function dragStart(e) {
+    const parentNode = d3.select(this.parentNode);
+    parentNode.datum(); // Get bound data
+    if (window.mobile) {
+      window.dragStart = [e.touches[0].pageX, e.touches[0].pageY];
+    } else {
+      window.dragStart = [e.sourceEvent.pageX, e.sourceEvent.pageY];
+    }
+
+    // console.log(window.dragStart);
   }
 
   const canoePoloWhiteboard = () => {
@@ -3914,7 +3936,8 @@
         .attr("y2", height * 0.98)
         .attr("stroke", "#cc6695")
         .attr("stroke-width", 0.3);
-      let drag$1 = drag().on("drag", handleDrag);
+
+      let drag$1 = drag().on("start", dragStart).on("drag", handleDrag);
       let rotation = drag().on("drag", handleRotation);
 
       svg
@@ -3971,9 +3994,9 @@
 
             if (window.mobile) {
               // ids.on('touchmove', drag);
-              ids.on("touchmove", handleDrag);
-              cockpits.on("touchmove", handleDrag);
-              boats.on("touchmove", handleDrag);
+              ids.on("touchstart", dragStart).on("touchmove", handleDrag);
+              cockpits.on("touchstart", dragStart).on("touchmove", handleDrag);
+              boats.on("touchstart", dragStart).on("touchmove", handleDrag);
               rotationHandles.on("touchmove", handleRotation);
             } else {
               // console.log("false");
@@ -4057,9 +4080,9 @@
               .attr("r", radius);
 
             if (window.mobile) {
-              circle.on("touchmove", handleDrag);
+              circle.on("touchstart", dragStart).on("touchmove", handleDrag);
             } else {
-              let drag = d3.drag().on("drag", handleDrag);
+              let drag = d3.drag().on("start", dragStart).on("drag", handleDrag);
               circle.call(drag);
             }
           },

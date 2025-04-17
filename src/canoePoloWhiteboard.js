@@ -1,6 +1,6 @@
 import { getInitialBoatState, getInitialBoatStateKickoff } from "./initialBoatState";
 import { generateBoatPath } from "./utils/generateBoatPath";
-import { handleDrag, handleRotation } from "./utils/handleDrag";
+import { handleDrag, handleRotation, dragStart } from "./utils/handleDrag";
 import * as d3 from "d3";
 
 export const canoePoloWhiteboard = () => {
@@ -69,7 +69,8 @@ export const canoePoloWhiteboard = () => {
       .attr("y2", height * 0.98)
       .attr("stroke", "#cc6695")
       .attr("stroke-width", 0.3);
-    let drag = d3.drag().on("drag", handleDrag);
+
+    let drag = d3.drag().on("start", dragStart).on("drag", handleDrag);
     let rotation = d3.drag().on("drag", handleRotation);
 
     const nodes = svg
@@ -126,9 +127,9 @@ export const canoePoloWhiteboard = () => {
 
           if (window.mobile) {
             // ids.on('touchmove', drag);
-            ids.on("touchmove", handleDrag);
-            cockpits.on("touchmove", handleDrag);
-            boats.on("touchmove", handleDrag);
+            ids.on("touchstart", dragStart).on("touchmove", handleDrag);
+            cockpits.on("touchstart", dragStart).on("touchmove", handleDrag);
+            boats.on("touchstart", dragStart).on("touchmove", handleDrag);
             rotationHandles.on("touchmove", handleRotation);
           } else {
             // console.log("false");

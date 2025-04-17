@@ -1,4 +1,4 @@
-import { handleDrag } from "./utils/handleDrag";
+import { dragStart, handleDrag } from "./utils/handleDrag";
 export const Ball = () => {
   let ballState;
   let transitionDuration = 1000;
@@ -32,9 +32,9 @@ export const Ball = () => {
             .attr("r", radius);
 
           if (window.mobile) {
-            circle.on("touchmove", handleDrag);
+            circle.on("touchstart", dragStart).on("touchmove", handleDrag);
           } else {
-            let drag = d3.drag().on("drag", handleDrag);
+            let drag = d3.drag().on("start", dragStart).on("drag", handleDrag);
             circle.call(drag);
           }
         },
