@@ -3,7 +3,7 @@ import { getInitialBallState, getInitialBoatState } from "../initialBoatState";
 import { saveChart } from "./saveChart.js";
 import { Ball } from "../ball.js";
 export const displayFullScreen = async (id) => {
-  var elem = document.getElementById(id);
+  var elem = document.documentElement;
 
   if (elem.requestFullscreen) {
     await elem.requestFullscreen();
@@ -46,13 +46,18 @@ export const resetScreen = (resetBoats) => {
 
   const svg = d3.select("#whiteboard-svg");
   svg.selectAll("*").interrupt();
+
   document.getElementById("chart-container").style.width = `${
     window.innerWidth * 0.99
   }px`;
   document.getElementById("chart-container").style.height = `${
-    window.innerHeight * 0.99 - 50
+    window.innerHeight * 0.9
   }px`;
 
+  svg
+    .select("#background-rect")
+    .attr("width", svg.node().getBoundingClientRect().width)
+    .attr("height", svg.node().getBoundingClientRect().height);
   // console.log(
   //   svg.node().getBoundingClientRect().width,
   //   svg.node().getBoundingClientRect().height
@@ -72,10 +77,7 @@ export const resetScreen = (resetBoats) => {
     boatState = svg.selectAll(".nodes").data();
     ballState = svg.selectAll(".ball").data()[0];
   }
-  // let boatState = svg.selectAll(".nodes").data()
-  console.log(svg.node().getBoundingClientRect().width);
 
-  console.log(boatState);
   const whiteboard = canoePoloWhiteboard().boatState(boatState);
   svg.call(whiteboard);
   if (window.ball) {

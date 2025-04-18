@@ -10,121 +10,128 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
   </head>
   <body>
-    <!-- <div id="header"></div> -->
-    <div class="flex-container">
-      <div id="chart-container">
-        <div id="chart"></div>
-        <div id="button-panel">
-          <i
-            class="fa-solid fa-circle-info button-panel-icon"
-            onclick="showInfo()"
-          ></i>
-          <i
-            class="fa-solid fa-rotate-right button-panel-icon"
-            onclick="resetScreen('whiteboard-svg', true)"
-          ></i>
-          <i
-          class="fa-solid fa-maximize button-panel-icon"
-          id="fullscreen-button"
-          onclick="displayFullScreen('chart-container')"
-          ></i>
-          <div class="button-panel-icon demo-icon" onclick="loadPositions(true)">DEMO</div>
-          <!-- <i class="fa-solid fa-xmark button-panel-icon" ></i> -->
+    <div id="body">
+      <!-- <div id="header"></div> -->
+      <div class="flex-container">
+        <div id="chart-container">
+          <div id="chart"></div>
+          <div id="button-panel">
+            <i
+              class="fa-solid fa-circle-info button-panel-icon"
+              onclick="showInfo()"
+            ></i>
+            <i
+              class="fa-solid fa-rotate-right button-panel-icon"
+              onclick="resetScreen('whiteboard-svg', true)"
+            ></i>
+            <i
+              class="fa-solid fa-maximize button-panel-icon"
+              id="fullscreen-button"
+              onclick="displayFullScreen('body')"
+            ></i>
+            <div
+              class="button-panel-icon demo-icon"
+              onclick="loadPositions(true)"
+            >
+              DEMO
+            </div>
+            <!-- <i class="fa-solid fa-xmark button-panel-icon" ></i> -->
+          </div>
         </div>
       </div>
-    </div>
-    <div class="control-panel">
-      <label for="nTeam1" class="new-button"
-        >Orange Boats
-        <select id="nTeam1">
-          <option>1</option>
-          <option>2</option>
-          <option>3</option>
-          <option>4</option>
-          <option selected>5</option>
-        </select></label
-      >
+      <div class="control-panel">
+        <label for="nTeam1" class="new-button"
+          >Purple Boats
+          <select id="nTeam1">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option selected>5</option>
+          </select></label
+        >
 
-      <label for="nTeam2" class="new-button"
-        >Green Boats
-        <select id="nTeam2">
-          <option>1</option>
-          <option>2</option>
-          <option>3</option>
-          <option>4</option>
-          <option selected>5</option>
-        </select></label
-      >
-      <label class="new-button">Ball
-        <input type="checkbox" id="ball-checkbox" checked /> 
-      </label>
-      <label for="reset-state" class=" double-button new-button"
-        >Initial State
-        <select id="reset-state">
-          <option selected>Kickoff</option>
-          <option>Even</option>
-          <option>Post Green Goal</option>
-          <option>Post Orange Goal</option>
-        </select></label
-      >
-      <div class="new-button" onclick="reanimateStates(false)">
-        <i class="fa-solid fa-play"></i>Play
+        <label for="nTeam2" class="new-button"
+          >Green Boats
+          <select id="nTeam2">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option selected>5</option>
+          </select></label
+        >
+        <label class="new-button"
+          >Ball
+          <input type="checkbox" id="ball-checkbox" checked />
+        </label>
+        <label for="reset-state" class="double-button new-button"
+          >Initial State
+          <select id="reset-state">
+            <option selected>Kickoff</option>
+            <option>Even</option>
+            <option>Post Green Goal</option>
+            <option>Post Orange Goal</option>
+          </select></label
+        >
+        <div class="new-button" onclick="reanimateStates(false)">
+          <i class="fa-solid fa-play"></i>Play
+        </div>
+        <label for="position-slider" class="double-button new-button">
+          <div id="current-position">0</div>
+          <input
+            type="range"
+            step="1"
+            max="10"
+            min="0"
+            value="0"
+            id="position-slider"
+            disabled
+          />
+        </label>
+        <div class="new-button" onclick="saveState()">
+          <i class="fa-solid fa-square-plus"></i>Add Frame
+        </div>
+        <div class="new-button" onclick="saveState(rewrite=true)">
+          <i class="fa-solid fa-plus"></i>Rewrite frame
+        </div>
+        <div class="new-button" onclick="clearAnimation()">
+          <i class="fa-solid fa-trash"></i>Reset
+        </div>
+        <label for="duration" class="new-button" width="70%">
+          Animation Speed
+          <select id="duration">
+            <option>0.25x</option>
+            <option>0.5x</option>
+            <option>0.75x</option>
+            <option selected>1x</option>
+            <option>2x</option>
+            <option>4x</option>
+          </select>
+        </label>
+        <div class="new-button" onclick="open3D()">
+          <i class="fa-solid fa-cube"></i>3D (beta)
+        </div>
+        <div class="new-button" onclick="savePositions()">
+          <i class="fa-solid fa-floppy-disk"></i>
+          Save Animation File
+        </div>
+        <div class="new-button" onclick="savePng()">
+          <i class="fa-solid fa-camera"></i>Save Image
+        </div>
+        <label class="new-button" for="animation-file-input">
+          <input
+            class="animation-button"
+            type="file"
+            id="animation-file-input"
+            accept=".json"
+            style="display: none"
+          />
+          <i class="fa-solid fa-upload"></i>
+          Load file
+        </label>
       </div>
-      <label for="position-slider" class="double-button new-button">
-        <div id="current-position">0</div>
-        <input
-        type="range"
-        step="1"
-        max="10"
-        min="0"
-        value="0"
-        id="position-slider"
-        disabled
-        />
-      </label>
-      <div class="new-button" onclick="saveState()">
-        <i class="fa-solid fa-square-plus"></i>Add Frame
-      </div>
-      <div class="new-button" onclick="saveState(rewrite=true)">
-        <i class="fa-solid fa-plus"></i>Rewrite frame
-      </div>
-      <div class="new-button" onclick="clearAnimation()">
-        <i class="fa-solid fa-trash"></i>Reset
-      </div>
-      <label for="duration" class="new-button" width="70%">
-        Animation Speed
-        <select id="duration">
-          <option>0.25x</option>
-          <option>0.5x</option>
-          <option>0.75x</option>
-          <option selected>1x</option>
-          <option>2x</option>
-          <option>4x</option>
-        </select>
-      </label>
-      <div class="new-button" onclick="open3D()">
-        <i class="fa-solid fa-cube"></i>3D (beta)
-      </div>
-      <div class="new-button" onclick="savePositions()">
-        <i class="fa-solid fa-floppy-disk"></i>
-        Save Animation File
-      </div>
-      <div class="new-button" onclick="savePng()">
-        <i class="fa-solid fa-camera"></i>Save Image
-      </div>
-      <label class="new-button" for="animation-file-input">
-        <input
-        class="animation-button"
-        type="file"
-        id="animation-file-input"
-        accept=".json"
-        style="display: none"
-        />
-        <i class="fa-solid fa-upload"></i>
-        Load file
-      </label>
     </div>
-
     <script src="bundle.js"></script>
   </body>
 </html>

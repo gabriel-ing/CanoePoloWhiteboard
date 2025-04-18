@@ -3989,9 +3989,10 @@
               .attr("fill", d=> teamColors[d.team].cockpitColor);
 
             const ids = g
-              .selectAll("boatID")
+              .selectAll(".boatID")
               .data((nodeData) => [nodeData])
               .join("text")
+              .attr("class", "boatID")
               .attr("x", 0)
               .attr("fill", d=>teamColors[d.team].number)
               .attr("y", boatWidth * 0.3)
@@ -4035,6 +4036,10 @@
               .selectAll(".rotation-handles")
               .attr("cy", boatHeight / 2 + boatWidth / 2)
               .attr("r", boatWidth / 8);
+
+            update.selectAll(".boatID")
+            .attr("y", boatWidth * 0.3)
+            .attr("font-size", boatWidth * 0.8);
           }
         );
 
@@ -4118,7 +4123,7 @@
   };
 
   const displayFullScreen = async (id) => {
-    var elem = document.getElementById(id);
+    var elem = document.documentElement;
 
     if (elem.requestFullscreen) {
       await elem.requestFullscreen();
@@ -4152,7 +4157,7 @@
     document.getElementById("fullscreen-button").classList.remove("fa-xmark");
     document.getElementById("fullscreen-button").classList.add("fa-maximize");
     document.getElementById("fullscreen-button").onclick = () =>
-      displayFullScreen("chart");
+      displayFullScreen();
     document.exitFullscreen();
   };
 
@@ -4161,13 +4166,18 @@
 
     const svg = d3.select("#whiteboard-svg");
     svg.selectAll("*").interrupt();
+
     document.getElementById("chart-container").style.width = `${
     window.innerWidth * 0.99
   }px`;
     document.getElementById("chart-container").style.height = `${
-    window.innerHeight * 0.99 - 50
+    window.innerHeight * 0.9
   }px`;
 
+    svg
+      .select("#background-rect")
+      .attr("width", svg.node().getBoundingClientRect().width)
+      .attr("height", svg.node().getBoundingClientRect().height);
     // console.log(
     //   svg.node().getBoundingClientRect().width,
     //   svg.node().getBoundingClientRect().height
@@ -4187,10 +4197,7 @@
       boatState = svg.selectAll(".nodes").data();
       ballState = svg.selectAll(".ball").data()[0];
     }
-    // let boatState = svg.selectAll(".nodes").data()
-    console.log(svg.node().getBoundingClientRect().width);
 
-    console.log(boatState);
     const whiteboard = canoePoloWhiteboard().boatState(boatState);
     svg.call(whiteboard);
     if (window.ball) {
@@ -5491,6 +5498,9 @@ When you are happy with an animation, try it in 3D with the 'View in 3D' button!
     document.getElementById("options-panel").visibility = "true";
   };
 
+  window.addEventListener("resize", resetScreen, false);
+
+
   document
     .getElementById("animation-file-input")
     .addEventListener("change", (event) => {
@@ -5564,7 +5574,7 @@ When you are happy with an animation, try it in 3D with the 'View in 3D' button!
   window.innerWidth * 0.99
 }px`;
   document.getElementById("chart-container").style.height = `${
-  window.innerHeight * 0.95
+  window.innerHeight * 0.90
 }px`;
 
   window.displayFullScreen = displayFullScreen;
@@ -5582,6 +5592,7 @@ When you are happy with an animation, try it in 3D with the 'View in 3D' button!
   svg
     .append("rect")
     .attr("width", width)
+    .attr("id", "background-rect")
     .attr("height", height)
     .attr("fill", "#d9e5f2");
 

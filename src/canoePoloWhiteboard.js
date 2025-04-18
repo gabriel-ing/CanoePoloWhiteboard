@@ -122,9 +122,10 @@ export const canoePoloWhiteboard = () => {
             .attr("fill", d=> teamColors[d.team].cockpitColor);
 
           const ids = g
-            .selectAll("boatID")
+            .selectAll(".boatID")
             .data((nodeData) => [nodeData])
             .join("text")
+            .attr("class", "boatID")
             .attr("x", 0)
             .attr("fill", d=>teamColors[d.team].number)
             .attr("y", boatWidth * 0.3)
@@ -168,6 +169,10 @@ export const canoePoloWhiteboard = () => {
             .selectAll(".rotation-handles")
             .attr("cy", boatHeight / 2 + boatWidth / 2)
             .attr("r", boatWidth / 8);
+
+          update.selectAll(".boatID")
+          .attr("y", boatWidth * 0.3)
+          .attr("font-size", boatWidth * 0.8)
         }
       );
 

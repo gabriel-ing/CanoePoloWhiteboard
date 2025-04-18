@@ -33,6 +33,9 @@ window.optionsClick = () => {
   document.getElementById("options-panel").visibility = "true";
 };
 
+window.addEventListener("resize", resetScreen, false);
+
+
 document
   .getElementById("animation-file-input")
   .addEventListener("change", (event) => {
@@ -106,7 +109,7 @@ document.getElementById("chart-container").style.width = `${
   window.innerWidth * 0.99
 }px`;
 document.getElementById("chart-container").style.height = `${
-  window.innerHeight * 0.95
+  window.innerHeight * 0.90
 }px`;
 
 window.displayFullScreen = displayFullScreen;
@@ -124,6 +127,7 @@ const height = svg.node().getBoundingClientRect().height;
 svg
   .append("rect")
   .attr("width", width)
+  .attr("id", "background-rect")
   .attr("height", height)
   .attr("fill", "#d9e5f2");
 
