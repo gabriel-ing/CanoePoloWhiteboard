@@ -2,7 +2,7 @@ import { canoePoloWhiteboard } from "../canoePoloWhiteboard";
 import { getInitialBallState, getInitialBoatState } from "../initialBoatState";
 import { saveChart } from "./saveChart.js";
 import { Ball } from "../ball.js";
-export const displayFullScreen = async (id) => {
+export const displayFullScreen = async () => {
   var elem = document.documentElement;
 
   if (elem.requestFullscreen) {

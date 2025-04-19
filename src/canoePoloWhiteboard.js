@@ -1,12 +1,27 @@
-import { getInitialBoatState, getInitialBoatStateKickoff } from "./initialBoatState";
+import {
+  getInitialBoatState,
+  getInitialBoatStateKickoff,
+} from "./initialBoatState";
 import { generateBoatPath } from "./utils/generateBoatPath";
 import { handleDrag, handleRotation, dragStart } from "./utils/handleDrag";
 import * as d3 from "d3";
 
 const teamColors = {
-  1:  {baseColor: "#b58cd9", outline:"#9d66cc", cockpitColor:"#ffffff", number:"#4f2673", handleColor:"#35194d"},
-  2: {baseColor:"#66cc9d", outline:"#3fc084", "cockpitColor":"#ffffff", number:"#26734f", handleColor:"#0d261a"}
-}
+  1: {
+    baseColor: "#b58cd9",
+    outline: "#9d66cc",
+    cockpitColor: "#ffffff",
+    number: "#4f2673",
+    handleColor: "#35194d",
+  },
+  2: {
+    baseColor: "#66cc9d",
+    outline: "#3fc084",
+    cockpitColor: "#ffffff",
+    number: "#26734f",
+    handleColor: "#0d261a",
+  },
+};
 
 export const canoePoloWhiteboard = () => {
   let boatState;
@@ -91,24 +106,38 @@ export const canoePoloWhiteboard = () => {
               (d) => `translate(${d.x},${d.y}) rotate(${d.r0})`
             )
             .style("display", (d) => d.visible);
-
-          const boats = g
-            .selectAll(".boat")
-            .data((nodeData) => [nodeData])
-            .join("path")
-            .attr("class", "boat")
-            .attr("d", generateBoatPath(0, 0, boatWidth, boatHeight))
-            .attr("fill", (d) => teamColors[d.team].baseColor)
-            .attr("stroke", (d)=> teamColors[d.team].outline)
-            .attr("stroke-width", boatWidth / 20);
-
+          let boats;
+          if (-1 < navigator.userAgent.search("Firefox")) {
+            boats = g
+              .selectAll(".boat")
+              .data((nodeData) => [nodeData])
+              .join("ellipse")
+              .attr("class", "boat")
+              .attr("cx", 0)
+              .attr("cy", 0)
+              .attr("rx", boatWidth/2)
+              .attr("ry", boatHeight/2)
+              .attr("fill", (d) => teamColors[d.team].baseColor)
+              .attr("stroke", (d) => teamColors[d.team].outline)
+              .attr("stroke-width", boatWidth / 20);
+          } else {
+            boats = g
+              .selectAll(".boat")
+              .data((nodeData) => [nodeData])
+              .join("path")
+              .attr("class", "boat")
+              .attr("d", generateBoatPath(0, 0, boatWidth, boatHeight))
+              .attr("fill", (d) => teamColors[d.team].baseColor)
+              .attr("stroke", (d) => teamColors[d.team].outline)
+              .attr("stroke-width", boatWidth / 20);
+          }
           const rotationHandles = g
             .append("circle")
             .attr("cx", 0)
             .attr("cy", boatHeight / 2 + boatWidth / 2)
             .attr("r", boatWidth / 8)
-            .attr("fill", d=>teamColors[d.team].handleColor)
-            .attr("stroke", d=>teamColors[d.team].handleColor)
+            .attr("fill", (d) => teamColors[d.team].handleColor)
+            .attr("stroke", (d) => teamColors[d.team].handleColor)
             .attr("class", "rotation-handles")
             .attr("stroke-width", 2);
 
@@ -119,7 +148,7 @@ export const canoePoloWhiteboard = () => {
             .attr("cy", 0)
             .attr("r", boatWidth / 2)
             .attr("opacity", 0.7)
-            .attr("fill", d=> teamColors[d.team].cockpitColor);
+            .attr("fill", (d) => teamColors[d.team].cockpitColor);
 
           const ids = g
             .selectAll(".boatID")
@@ -127,11 +156,11 @@ export const canoePoloWhiteboard = () => {
             .join("text")
             .attr("class", "boatID")
             .attr("x", 0)
-            .attr("fill", d=>teamColors[d.team].number)
+            .attr("fill", (d) => teamColors[d.team].number)
             .attr("y", boatWidth * 0.3)
             .attr("text-anchor", "middle")
             .attr("font-size", boatWidth * 0.8)
-            .attr("transform", d=>`rotate(${-d.r0})`)
+            .attr("transform", (d) => `rotate(${-d.r0})`)
             .text((d) => d.id);
 
           if (window.mobile) {
@@ -170,9 +199,10 @@ export const canoePoloWhiteboard = () => {
             .attr("cy", boatHeight / 2 + boatWidth / 2)
             .attr("r", boatWidth / 8);
 
-          update.selectAll(".boatID")
-          .attr("y", boatWidth * 0.3)
-          .attr("font-size", boatWidth * 0.8)
+          update
+            .selectAll(".boatID")
+            .attr("y", boatWidth * 0.3)
+            .attr("font-size", boatWidth * 0.8);
         }
       );
 
