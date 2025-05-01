@@ -1,6 +1,107 @@
 <!DOCTYPE html>
 <title>Canoe Polo Whiteboard Introduction</title>
-<styles>
+<style>
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #336299;
+  }
+  img {
+    width: 70%;
+    margin: auto;
+    border: 1px solid grey;
+  }
+  .container {
+    width: 80%;
+    justify-content: center;
+    background-color: #f7fafc;
+    margin: 0 auto;
+    padding: 1rem;
+    position: relative;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  h1 {
+    text-align: center;
+  }
+</style>
 
-</styles>
+<body>
+  <div class="container">
+    <h1>Canoe Polo Whiteboard Introduction</h1>
+    <img src="Intro_images/First_gif.gif" />
+    <p>
+      This is a tool to sketch, display and animate tactics and plays in canoe
+      polo.
+    </p>
+    <h3>Interface</h3>
+    <p>There are several buttons at the top:</p>
+    <img src="Intro_images/Icons.png" />
 
+    <p>There is a toolbar at the bottom with a number of options.</p>
+    <p>
+      Here you can choose the number of each colour boats and turn the ball on
+      and off - in case you want to simplify situations.
+    </p>
+    <img src="Intro_images/Boat_controls_highlight.png" />
+    <h3>Animation</h3>
+    <img src="Intro_images/Animation_gif.gif" />
+    <p>Animating your plays is simple:</p>
+    <ul>
+      <li>Save an initial position use "Add Frame"</li>
+      <li>
+        Move your boats and ball to a new position and click "Add Frame" again.
+      </li>
+      <li>Keep adding frames until your play is complete.</li>
+      <li>
+        Click "Play" and it will smoothly animate between the positions. To
+        change the speed use the "Animation speed" dropdown
+      </li>
+      <li>
+        If you want to edit your play, use the slider to navigate through the
+        saved positions. Edit the positions and press "Rewrite frame"
+      </li>
+      <li>To start over click reset.</li>
+    </ul>
+    <p>
+      You can save the positions for the animation into a json file, using "Save
+      Animation File" and load an animation file using "Load File". You can save
+      an image with the save image button.<br />
+      Unfortunately there is no built in method to create a recording, but I
+      recommend recording your screen or using
+      <a href="https://gifcap.dev/">gifcap.dev</a> to create an animated gif.
+    </p>
+    <h3>First person view</h3>
+    <img src="Intro_images/Animation_gif.gif" />
+    <p>
+      To visualise how a tactic would look during a game, there is a 3D
+      first-person mode. This view allows a player to recognise and understand
+      what the play would look and feel like when in the middle of it.
+    </p>
+    <p>
+      To create this, simply draw out an animation as before, then press "3D
+      mode". There are limited controls here - choose the boat number for the
+      viewpoint, change the speed of the animation and replay the animation
+      using "reset".
+    </p>
+    <p>
+      If you click "return to whiteboard" it should keep the animation saved and
+      open so you can make any adjustments to the play in 2D before returning to
+      view it in 3D.
+    </p>
+    <h3>Acknowledgements</h3>
+    <p>
+      This project was created entirely by me, Gabriel Ing, however I must thank
+      and credit Jack Watt. His feedback, advice and bug-spotting was
+      invaluable, and the 3D mode was all his idea!
+    </p>
+    <p>
+      Thanks also to Forth Canoe Club who collectively taught me everything I
+      know about the sport.
+    </p>
+    <p>
+      Any feedback or thoughts? Feel free to open an issue on
+      <a href="https://github.com/gabriel-ing/CanoePoloWhiteboard">Github</a> or contact me on <a href="https://www.linkedin.com/in/gabriel-ing-b94586144/">LinkedIn</a>.
+    </p>
+  </div>
+</body>

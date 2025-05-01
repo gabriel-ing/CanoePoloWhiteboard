@@ -16,10 +16,7 @@
         <div id="chart-container">
           <div id="chart"></div>
           <div id="button-panel">
-            <i
-              class="fa-solid fa-circle-info button-panel-icon"
-              onclick="showInfo()"
-            ></i>
+            <a href="intro.html"><i class="fa-solid fa-circle-info button-panel-icon"></i></a>
             <i
               class="fa-solid fa-rotate-right button-panel-icon"
               onclick="resetScreen('whiteboard-svg', true)"
@@ -112,12 +109,12 @@
         <div class="new-button" onclick="open3D()">
           <i class="fa-solid fa-cube"></i>3D (beta)
         </div>
+        <div class="new-button" onclick="savePng()">
+          <i class="fa-solid fa-camera"></i>Save Image
+        </div>
         <div class="new-button" onclick="savePositions()">
           <i class="fa-solid fa-floppy-disk"></i>
           Save Animation File
-        </div>
-        <div class="new-button" onclick="savePng()">
-          <i class="fa-solid fa-camera"></i>Save Image
         </div>
         <label class="new-button" for="animation-file-input">
           <input

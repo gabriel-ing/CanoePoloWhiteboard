@@ -175,9 +175,12 @@
         max-width: 90%;
       }
       .demo-icon{
-        font-size: x-small;
+        font-size: small;
         font-weight: 900;
         transform: rotate(45);
         letter-spacing: -0.1em;
+      }
+      a{
+        color:black;
       }
       
